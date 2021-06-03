@@ -7,7 +7,6 @@ namespace App\controllers;
 use App\providers\CompanyDataProvider;
 use App\providers\CustomerDataProvider;
 use App\util\BaseDataProvider;
-use http\Exception\BadHeaderException;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 
@@ -15,11 +14,10 @@ class CustomerController
 {
     public function addCustomer($data) {
         $customerDataProvider = new CustomerDataProvider();
-        $email = $data['email'];
-        $searchArray  = ['email' => $email];
-        $isEmailExist = $customerDataProvider->findOne($searchArray);
 
-        if($isEmailExist != false){
+        $isEmailExist = $this->checkEmailExist($data['email']);
+
+        if($isEmailExist){
             return[
                 'status' => 'failed',
                 'message' => 'Email address is already taken.'
@@ -43,16 +41,21 @@ class CustomerController
 
     public function updateCustomer($customer_id, $data){
         $customerDataProvider = new CustomerDataProvider();
+
+        if($data['email']) {
+            $isEmailExist = $this->checkEmailExist($data['email'], $customer_id);
+
+            if($isEmailExist){
+                return[
+                    'status' => 'failed',
+                    'message' => 'Email address is already taken.'
+                ];
+            }
+        }
+
         $searchArray = ['_id' => new ObjectId($customer_id)];
         $updateArray = ['$set' => $data];
-        $result = $customerDataProvider->updateOne($searchArray, $updateArray);
-
-        if($result == 0) {
-            return [
-                'status' => 'failed',
-                'message' => 'Customer id is invalid'
-            ];
-        }
+        $customerDataProvider->updateOne($searchArray, $updateArray);
 
         return[
           'status' => 'success',
@@ -80,9 +83,15 @@ class CustomerController
 
     }
 
-    public function getCustomers() {
+    public function getCustomers($searchCriteria) {
         $customerDataProvider = new CustomerDataProvider();
-        $customers = $customerDataProvider->find();
+        $searchArray = [];
+
+        if(!empty($searchCriteria)) {
+            $searchArray = $searchCriteria;
+        }
+
+        $customers = $customerDataProvider->find($searchArray);
 
         if(empty($customers)) {
             return [
@@ -93,7 +102,6 @@ class CustomerController
 
         foreach ($customers as $key => $customer) {
             $company = $this->getCompany($customer['company_id']);
-            unset($customers[$key]['company_id']);
             $customers[$key]['company_name'] = $company['name'];
         }
 
@@ -135,6 +143,7 @@ class CustomerController
         return $customers;
     }
 
+    //utility functions
     private function getCompany($company_id){
         $searchArray = ['_id' => new ObjectId($company_id)];
         $projection = ['_id' => 0, 'name' => 1];
@@ -150,5 +159,22 @@ class CustomerController
         }
 
         return $company;
+    }
+    private function checkEmailExist($email, $customerId=false) {
+        $customerDataProvider = new CustomerDataProvider();
+        $emailSearchArray = ['email' => $email];
+
+        if($customerId){
+            $searchArray = ['_id' => ['$ne' => new ObjectId($customerId)]];
+            $emailSearchArray = array_merge($searchArray, $emailSearchArray);
+        }
+
+        $isEmailExist = $customerDataProvider->findOne($emailSearchArray);
+
+        if($isEmailExist) {
+            return true;
+        }
+
+        return false;
     }
 }

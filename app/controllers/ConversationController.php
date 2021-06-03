@@ -6,13 +6,14 @@ namespace App\controllers;
 
 use App\providers\ConversationDataProvider;
 use App\providers\CounterDataProvider;
-use App\util\BaseDataProvider;
+use App\providers\CustomerDataProvider;
 use MongoDB\BSON\ObjectId;
 
 class ConversationController
 {
     public function addConversation(&$data) {
         $conversationDataProvider = new ConversationDataProvider();
+
         $counter = $this->getCounter();
         $latestCounter = $counter + 1;
 
@@ -27,6 +28,7 @@ class ConversationController
         }
 
         $this->updateCounter($latestCounter);
+        $this->setStatusOfCustomer($data['customer_id'], 'conversation');
 
         return [
             'status' => 'success',
@@ -126,7 +128,12 @@ class ConversationController
 
     public function searchConversations($data) {
         $conversationDataProvider = new ConversationDataProvider();
-        $searchArray = ['conv_id' => (int) $data];
+        $searchArray = [];
+
+        if(!empty($data)){
+            $searchArray = ['conv_id' => (int) $data];
+        }
+
         $result = $conversationDataProvider->find($searchArray);
 
         if($result == false) {
@@ -139,6 +146,7 @@ class ConversationController
 
     }
 
+    //utility functions
     private function getCounter() {
         $counterDataProvider = new CounterDataProvider();
         $searchArray = ['type' => 1];
@@ -153,5 +161,19 @@ class ConversationController
         $counterDataProvider->updateOne($searchArray, $updateArray);
     }
 
+
+    private function setStatusOfCustomer($customer_id, $status){
+        $customerDataProvider = new CustomerDataProvider();
+        $searchArray  = ['_id' => new ObjectId($customer_id)];
+        $updateArray = ['$set' => ['status' => $status]];
+        $isUpdated = $customerDataProvider->updateOne($searchArray, $updateArray);
+
+        if($isUpdated == 0){
+            return [
+                'status' => 'failed',
+                'message' => 'there is problem setting status to action in customer'
+            ];
+        }
+    }
 
 }

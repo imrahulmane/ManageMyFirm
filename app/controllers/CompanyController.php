@@ -16,11 +16,9 @@ class CompanyController
     public function addCompany($data)
     {
         $companyDataProvider = new CompanyDataProvider();
-        $email = $data['support_email'];
-        $seachArray = ['support_email' => $email];
-        $isEmailExist = $companyDataProvider->findOne($seachArray);
+        $isEmailExist = $this->checkEmailExist($data['support_email']);
 
-        if($isEmailExist != false) {
+        if($isEmailExist) {
             return [
                 "status" => "failed",
                 "message" => "Email Address is already exist"
@@ -42,18 +40,24 @@ class CompanyController
         ];
     }
 
-    public function updateCompany($companyId, $data){
+
+    public function updateCompany($companyId, $data) {
         $companyDataProvider = new CompanyDataProvider();
+
+        if($data['support_email']) {
+            $isEmailExist = $this->checkEmailExist($data['support_email'], $companyId);
+
+            if($isEmailExist) {
+                return [
+                    "status" => "failed",
+                    "message" => "Email Address is already exist"
+                ];
+            }
+        }
+
         $searchArray = ['_id' => new ObjectId($companyId)];
         $updateArray = ['$set' => $data];
-        $result = $companyDataProvider->updateOne($searchArray, $updateArray);
-
-        if($result == 0){
-            return[
-                'status' => 'failed',
-                'message' => 'Please provide valid company ID'
-            ];
-        }
+        $companyDataProvider->updateOne($searchArray, $updateArray);
 
         return [
             'status' => 'success',
@@ -77,6 +81,8 @@ class CompanyController
     }
 
     public function getCompanies(){
+        //TODO: add customers count in each company
+
         $companyDataProvider = new CompanyDataProvider();
         $result = $companyDataProvider->find();
 
@@ -123,5 +129,23 @@ class CompanyController
         }
 
         return $result;
+    }
+
+    private function checkEmailExist($email, $companyId=false) {
+        $companyDataProvider = new CompanyDataProvider();
+        $emailSearchArray = ['support_email' => $email];
+
+        if($companyId){
+            $searchArray = ['_id' => ['$ne' => new ObjectId($companyId)]];
+            $emailSearchArray = array_merge($searchArray, $emailSearchArray);
+        }
+
+        $isEmailExist = $companyDataProvider->findOne($emailSearchArray);
+
+        if($isEmailExist) {
+            return true;
+        }
+
+        return false;
     }
 }

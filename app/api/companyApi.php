@@ -8,6 +8,7 @@ $configuration = [
 'displayErrorDetails' => true,
     ],
 ];
+
 $app = new App($configuration);
 
 $app->post('/company', function ($request, $response){

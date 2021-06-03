@@ -32,8 +32,10 @@ $app->get('/customer/{customer_id}', function ($request, $response){
     return $response->withJson($result);
 });
 $app->get('/customer', function ($request, $response){
+    $searchCriteria = $request->getParam('data');
+    $searchCriteria = json_decode($searchCriteria, 1);
     $customerController = new CustomerController();
-    $result = $customerController->getCustomers();
+    $result = $customerController->getCustomers($searchCriteria);
     return $response->withJson($result);
 });
 

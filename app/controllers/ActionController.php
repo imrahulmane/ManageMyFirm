@@ -8,7 +8,6 @@ use App\providers\ActionDataProvider;
 use App\providers\CompanyDataProvider;
 use App\providers\CounterDataProvider;
 use App\providers\CustomerDataProvider;
-use App\util\BaseDataProvider;
 use MongoDB\BSON\ObjectId;
 
 class ActionController
@@ -29,6 +28,7 @@ class ActionController
         }
 
         $this->updateCounter($latestCounter);
+        $this->setStatusOfCustomer($data['customer_id'], 'action');
 
         return[
             'status' => 'success',
@@ -133,7 +133,12 @@ class ActionController
     }
     public function searchAction($data){
         $actionDataProvider = new ActionDataProvider();
-        $searchArray = $data;
+        $searchArray = [];
+
+        if($data != null) {
+            $searchArray = ['action_id' => $data];
+        }
+
         $result = $actionDataProvider->find($searchArray);
 
         if($result == false) {
@@ -163,10 +168,13 @@ class ActionController
 
     private function getCustomerAndCompany($customerId){
         $customerDataProvider = new CustomerDataProvider();
+
         $searchArray = ['_id' => new ObjectId($customerId)];
         $projection = ['_id' => 0, 'company_id' => 1,
             'first_name' => 1, 'middle_name' => 1, 'last_name' => 1];
+
         $customer = $customerDataProvider->findOne($searchArray, $projection);
+
         $customerFullName = $customer['first_name']  . ' ' . $customer['middle_name'] . ' '. $customer['last_name'];
         $companyName = $this->getCompanyName($customer['company_id']);
 
@@ -179,6 +187,21 @@ class ActionController
         $projection = ['_id' => 0, 'name' => 1];
         $company = $companyDataProvider->findOne($searchArray, $projection);
         return $company['name'];
+    }
+
+
+    private function setStatusOfCustomer($customer_id, $status){
+        $customerDataProvider = new CustomerDataProvider();
+        $searchArray  = ['_id' => new ObjectId($customer_id)];
+        $updateArray = ['$set' => ['status' => $status]];
+        $isUpdated = $customerDataProvider->updateOne($searchArray, $updateArray);
+
+        if($isUpdated == 0){
+            return [
+                'status' => 'failed',
+                'message' => 'there is problem setting status to action in customer'
+            ];
+        }
     }
 
 }

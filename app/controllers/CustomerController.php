@@ -6,13 +6,16 @@ namespace App\controllers;
 
 use App\providers\CompanyDataProvider;
 use App\providers\CustomerDataProvider;
-use App\util\BaseDataProvider;
+use App\validators\CustomerValidator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 
 class CustomerController
 {
     public function addCustomer($data) {
+        $validator = new CustomerValidator($data, 'add');
+        $validator->validate();
+
         $customerDataProvider = new CustomerDataProvider();
 
         $isEmailExist = $this->checkEmailExist($data['email']);
@@ -24,6 +27,7 @@ class CustomerController
             ];
         }
 
+        $data['status'] = 'active';  //add status of customer
         $result = $customerDataProvider->insertOne($data);
 
         if(!$result) {
@@ -146,10 +150,10 @@ class CustomerController
     //utility functions
     private function getCompany($company_id){
         $searchArray = ['_id' => new ObjectId($company_id)];
-        $projection = ['_id' => 0, 'name' => 1];
+        $options = ['projection' => ['_id' => 0, 'name' => 1]];
 
         $companyDataProvider = new CompanyDataProvider();
-        $company = $companyDataProvider->findOne($searchArray, $projection);
+        $company = $companyDataProvider->findOne($searchArray, $options);
 
         if($company == false) {
             return [

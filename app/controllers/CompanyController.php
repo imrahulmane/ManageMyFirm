@@ -5,6 +5,7 @@ namespace App\controllers;
 
 
 use App\providers\CompanyDataProvider;
+use App\providers\CustomerDataProvider;
 use App\util\BaseDataProvider;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
@@ -81,24 +82,28 @@ class CompanyController
     }
 
     public function getCompanies(){
-        //TODO: add customers count in each company
-
         $companyDataProvider = new CompanyDataProvider();
-        $result = $companyDataProvider->find();
+        $companies = $companyDataProvider->find();
 
-        if($result == false){
+        if($companies == false){
             return[
                 'status' => 'failed',
                 'message' => 'There are no companies right now'
             ];
         }
 
-        return $result;
+        foreach($companies as $key => $company) {
+            $customerCount = $this->getCustomerCountOfEachCompany($company['_id']);
+            $companies[$key]['Customer Count'] = $customerCount;
+        }
+
+        return $companies;
     }
 
     public function deleteCompany($company_id){
         $companyDataProvider = new CompanyDataProvider();
         $searchArray = ['_id' => new ObjectId($company_id)];
+
         $result = $companyDataProvider->deleteOne($searchArray);
 
         if($result === 0 ){
@@ -131,6 +136,7 @@ class CompanyController
         return $result;
     }
 
+    //utility methods
     private function checkEmailExist($email, $companyId=false) {
         $companyDataProvider = new CompanyDataProvider();
         $emailSearchArray = ['support_email' => $email];
@@ -147,5 +153,12 @@ class CompanyController
         }
 
         return false;
+    }
+
+    private function getCustomerCountOfEachCompany($company_id) {
+        $customerDataProvider = new CustomerDataProvider();
+        $searchArray = ['company_id' => (string) $company_id];
+        $customerCount =  $customerDataProvider->recordCount($searchArray);
+        return $customerCount;
     }
 }

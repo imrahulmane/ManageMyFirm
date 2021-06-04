@@ -56,20 +56,25 @@ class ActionController
 
     }
 
-    public function getAction($actionId){
+    public function getAction($customerId){
         $actionDataProvider = new ActionDataProvider();
-        $searchArray = ['_id' => new ObjectId($actionId)];
-        $action = $actionDataProvider->findOne($searchArray);
+        $search = ['customer_id' => (string) ($customerId)];
 
-        $customerAndCompanyName = $this->getCustomerAndCompany($action['customer_id']);
-        $customerName = $customerAndCompanyName['customerFullName'];
-        $companyName = $customerAndCompanyName['companyName'];
+        $currentDate = date('d-m-y');
+        $options = ['action_date' => ['$gt' => $currentDate]];
+        $searchArray = array_merge($search, $options);
+        $actions = $actionDataProvider->find($searchArray);
 
-        unset($action['customer_id']);
-        $action['customer_name'] = $customerName;
-        $action['company_name'] = $companyName;
+        foreach ($actions as $key => $action) {
+            $customerAndCompanyName = $this->getCustomerAndCompany($action['customer_id']);
+            $customerName = $customerAndCompanyName['customerFullName'];
+            $companyName = $customerAndCompanyName['companyName'];
 
-        return $action;
+            $actions[$key]['customer_name'] = $customerName;
+            $actions[$key]['company_name'] = $companyName;
+        }
+
+        return $actions;
     }
 
     public function getAllActions(){
@@ -131,6 +136,7 @@ class ActionController
             'message' => 'Action is closed successfully'
         ];
     }
+
     public function searchAction($data){
         $actionDataProvider = new ActionDataProvider();
         $searchArray = [];
@@ -149,7 +155,6 @@ class ActionController
         }
 
         return $result;
-
     }
 
     private function getCounter(){
@@ -170,10 +175,10 @@ class ActionController
         $customerDataProvider = new CustomerDataProvider();
 
         $searchArray = ['_id' => new ObjectId($customerId)];
-        $projection = ['_id' => 0, 'company_id' => 1,
-            'first_name' => 1, 'middle_name' => 1, 'last_name' => 1];
+        $options = ['projection' => ['_id' => 0, 'company_id' => 1,
+            'first_name' => 1, 'middle_name' => 1, 'last_name' => 1]];
 
-        $customer = $customerDataProvider->findOne($searchArray, $projection);
+        $customer = $customerDataProvider->findOne($searchArray, $options);
 
         $customerFullName = $customer['first_name']  . ' ' . $customer['middle_name'] . ' '. $customer['last_name'];
         $companyName = $this->getCompanyName($customer['company_id']);
@@ -184,8 +189,8 @@ class ActionController
     private function getCompanyName($companyId){
         $companyDataProvider = new CompanyDataProvider();
         $searchArray = ['_id' => new ObjectId($companyId)];
-        $projection = ['_id' => 0, 'name' => 1];
-        $company = $companyDataProvider->findOne($searchArray, $projection);
+        $options = ['projection' => ['_id' => 0, 'name' => 1]];
+        $company = $companyDataProvider->findOne($searchArray, $options);
         return $company['name'];
     }
 

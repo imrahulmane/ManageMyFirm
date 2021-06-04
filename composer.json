@@ -4,8 +4,13 @@
         "mongodb/mongodb": "^1.8",
       "ext-mongodb": "*",
       "ext-json": "*",
-      "ext-mongo": "*"
-    },  "autoload": {
+      "ext-mongo": "*",
+	"jeffochoa/validator-factory": "^1.0"
+    }, 
+"provide" : {
+    "ext-mongo": "*"
+},
+ "autoload": {
     "psr-4": {
       "App\\": "app/"
     }

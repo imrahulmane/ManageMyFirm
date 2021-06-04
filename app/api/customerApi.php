@@ -1,14 +1,7 @@
 <?php
 
 use App\controllers\CustomerController;
-use Slim\App;
-
-$configuration = [
-    'settings' => [
-        'displayErrorDetails' => true,
-    ],
-];
-$app = new App($configuration);
+require __DIR__ . '/../util/slim.php';
 
 $app->post('/customer', function ($request, $response){
     $data = $request->getParsedBody();

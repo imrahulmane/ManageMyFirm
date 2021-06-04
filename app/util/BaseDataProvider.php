@@ -31,8 +31,8 @@ abstract class BaseDataProvider
         return $result->getModifiedCount();
     }
 
-    public function find($searchArray = [], $projection = []) {
-        return  $this->collectionObj->find($searchArray, ["projection" => $projection])->toArray();
+    public function find($searchArray = [], $options = []) {
+        return  $this->collectionObj->find($searchArray, $options)->toArray();
     }
 
     public function findOne($searchArray, $projection =[]){
@@ -53,6 +53,10 @@ abstract class BaseDataProvider
     public function replaceOne($searchArray, $updateArray){
         $result = $this->collectionObj->replaceOne($searchArray, $updateArray);
         return $result;
+    }
+
+    public function aggregate($pipeline) {
+        return $this->collectionObj->aggregate($pipeline);
     }
 
     public  function bulkInsert($data) {

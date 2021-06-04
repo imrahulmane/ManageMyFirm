@@ -57,11 +57,12 @@ class ConversationController
 
     }
 
-    public function getConversation($conversationId){
+    public function getConversation($customerID){
         $conversationDataProvider = new ConversationDataProvider();
-        $searchArray = ['_id' => new ObjectId($conversationId)];
+        $search = ['customer_id' => $customerID];
+        $options = ['sort' => ['reminder_date' => -1]];
 
-        $result = $conversationDataProvider->findOne($searchArray);
+        $result = $conversationDataProvider->find($search, $options);
 
         if($result == false) {
             return [

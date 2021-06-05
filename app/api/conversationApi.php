@@ -1,14 +1,8 @@
 <?php
 
 use App\controllers\ConversationController;
-use Slim\App;
 
-$configuration = [
-    'settings' => [
-        'displayErrorDetails' => true,
-    ],
-];
-$app = new App($configuration);
+require __DIR__ . '/../util/slim.php';
 
 $app->post('/conversation', function ($request, $response){
     $data = $request->getParsedBody();

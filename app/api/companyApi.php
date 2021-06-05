@@ -1,15 +1,8 @@
 <?php
 
 use App\controllers\CompanyController;
-use Slim\App;
 
-$configuration = [
-'settings' => [
-'displayErrorDetails' => true,
-    ],
-];
-
-$app = new App($configuration);
+require __DIR__ . '/../util/slim.php';
 
 $app->post('/company', function ($request, $response){
     $data = $request->getParsedBody();

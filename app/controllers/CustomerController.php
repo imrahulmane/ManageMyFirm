@@ -44,6 +44,9 @@ class CustomerController
     }
 
     public function updateCustomer($customer_id, $data){
+        $validator = new CustomerValidator($data, 'update');
+        $validator->validate();
+
         $customerDataProvider = new CustomerDataProvider();
 
         if($data['email']) {

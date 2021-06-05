@@ -10,11 +10,11 @@ $app->post('/action', function ($request, $response){
     return $response->withJson($result);
 });
 
-$app->put('/action/{$customer_id}', function ($request, $response){
-    $customerId = $request->getAttribute('$customerId');
+$app->put('/action/{action_id}', function ($request, $response){
+    $actionId = $request->getAttribute('action_id');
     $data = $request->getParsedBody();
     $actionController = new ActionController();
-    $result = $actionController->updateAction($customerId, $data);
+    $result = $actionController->updateAction($actionId, $data);
     return $response->withJson($result);
 });
 
@@ -52,8 +52,5 @@ $app->get('/actions/search', function ($request, $response){
     $result = $actionController->searchAction($data);
     return $response->withJson($result);
 });
-
-//$app->post('/', function ($request, $response){});
-
 
 $app->run();

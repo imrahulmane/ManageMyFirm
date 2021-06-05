@@ -7,6 +7,7 @@ namespace App\controllers;
 use App\providers\CompanyDataProvider;
 use App\providers\CustomerDataProvider;
 use App\util\BaseDataProvider;
+use App\validators\CompanyValidator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 
@@ -16,6 +17,9 @@ class CompanyController
 
     public function addCompany($data)
     {
+        $validator = new CompanyValidator($data, 'add');
+        $validator->validate();
+
         $companyDataProvider = new CompanyDataProvider();
         $isEmailExist = $this->checkEmailExist($data['support_email']);
 
@@ -43,12 +47,15 @@ class CompanyController
 
 
     public function updateCompany($companyId, $data) {
+        $validator = new CompanyValidator($data, 'update');
+        $validator->validate();
+
         $companyDataProvider = new CompanyDataProvider();
 
         if($data['support_email']) {
             $isEmailExist = $this->checkEmailExist($data['support_email'], $companyId);
 
-            if($isEmailExist) {
+        if($isEmailExist) {
                 return [
                     "status" => "failed",
                     "message" => "Email Address is already exist"

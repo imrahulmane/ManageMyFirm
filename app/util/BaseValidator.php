@@ -3,7 +3,6 @@
 
 namespace App\util;
 
-
 use Exception;
 use JeffOchoa\ValidatorFactory;
 

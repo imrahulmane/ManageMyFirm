@@ -7,11 +7,15 @@ namespace App\controllers;
 use App\providers\ConversationDataProvider;
 use App\providers\CounterDataProvider;
 use App\providers\CustomerDataProvider;
+use App\validators\ConversationValidator;
 use MongoDB\BSON\ObjectId;
 
 class ConversationController
 {
     public function addConversation(&$data) {
+        $validator = new ConversationValidator($data, 'add');
+        $validator->validate();
+
         $conversationDataProvider = new ConversationDataProvider();
 
         $counter = $this->getCounter();
@@ -37,18 +41,14 @@ class ConversationController
     }
 
     public function updateConversation($conversationId, $data) {
+        $validator = new ConversationValidator($data, 'update');
+        $validator->validate();
+
         $conversationDataProvider = new ConversationDataProvider();
         $searchArray = ['_id' => new ObjectId($conversationId)];
         $updateArray = ['$set' => $data];
 
-        $result = $conversationDataProvider->updateOne($searchArray, $updateArray);
-
-        if($result == 0) {
-            return [
-                'status' => 'failed',
-                'message' => 'Please Provide Valid ID or Data'
-            ];
-        }
+        $conversationDataProvider->updateOne($searchArray, $updateArray);
 
         return [
             'status' => 'success',

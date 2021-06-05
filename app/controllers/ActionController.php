@@ -8,11 +8,15 @@ use App\providers\ActionDataProvider;
 use App\providers\CompanyDataProvider;
 use App\providers\CounterDataProvider;
 use App\providers\CustomerDataProvider;
+use App\validators\ActionValidator;
 use MongoDB\BSON\ObjectId;
 
 class ActionController
 {
     public function addAction(&$data){
+        $validator = new ActionValidator($data, 'add');
+        $validator->validate();
+
         $actionDataProvider = new ActionDataProvider();
         $counter = $this->getCounter();
         $latestCounter = $counter + 1;
@@ -37,17 +41,13 @@ class ActionController
     }
 
     public function updateAction($actionId, $data){
+        $validator = new ActionValidator($data, 'update');
+        $validator->validate();
+
         $actionDataProvider = new ActionDataProvider();
         $searchArray = ['_id' => new ObjectId($actionId)];
         $updateArray = ['$set' => $data];
-        $result = $actionDataProvider->updateOne($searchArray, $updateArray);
-
-        if($result == 0) {
-            return [
-                'status' => 'failed',
-                'message' => 'Please provide valid ID or Data'
-            ];
-        }
+        $actionDataProvider->updateOne($searchArray, $updateArray);
 
         return [
             'status' => 'success',

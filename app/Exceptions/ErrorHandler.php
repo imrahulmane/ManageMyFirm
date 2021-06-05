@@ -14,6 +14,7 @@ class ErrorHandler extends ExceptionHandler
         $data = [
             'error' => $exception->getMessage()
         ];
+
         if ($exception instanceof ValidationException) {
             $data['error_messages'] = $exception->errors();
         }
@@ -24,7 +25,6 @@ class ErrorHandler extends ExceptionHandler
             $data['line'] = $exception->getLine();
             $data['trace'] = $exception->getTrace();
         }
-
         return $response->withJson($data, 200);
     }
 }

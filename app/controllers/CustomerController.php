@@ -2,8 +2,6 @@
 
 
 namespace App\controllers;
-
-
 use App\providers\CompanyDataProvider;
 use App\providers\CustomerDataProvider;
 use App\validators\CustomerValidator;
@@ -40,7 +38,6 @@ class CustomerController
             'status' => 'success',
             'message' => 'Customer added Successfully'
         ];
-
     }
 
     public function updateCustomer($customer_id, $data){
@@ -111,9 +108,7 @@ class CustomerController
             $company = $this->getCompany($customer['company_id']);
             $customers[$key]['company_name'] = $company['name'];
         }
-
         return $customers;
-
     }
 
     public function deleteCustomer($customer_id){
@@ -167,6 +162,7 @@ class CustomerController
 
         return $company;
     }
+
     private function checkEmailExist($email, $customerId=false) {
         $customerDataProvider = new CustomerDataProvider();
         $emailSearchArray = ['email' => $email];
@@ -181,7 +177,6 @@ class CustomerController
         if($isEmailExist) {
             return true;
         }
-
         return false;
     }
 }

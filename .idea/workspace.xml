@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="10b6d09d-e858-4941-89db-2a9dc40f470b" name="Default Changelist" comment="">
+    <list default="true" id="10b6d09d-e858-4941-89db-2a9dc40f470b" name="Default Changelist" comment="Added model validator">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Exceptions/ErrorHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Exceptions/ErrorHandler.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/actionApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/actionApi.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/companyApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/companyApi.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/conversationApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/conversationApi.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/controllers/ActionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ActionController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/controllers/CompanyController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/CompanyController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/controllers/ConversationController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ConversationController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/CustomerController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/CustomerController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/util/BaseValidator.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/util/BaseValidator.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/validators/ConversationValidator.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/validators/ConversationValidator.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/validators/CustomerValidator.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/validators/CustomerValidator.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -108,8 +99,18 @@
       <workItem from="1622611186804" duration="7836000" />
       <workItem from="1622697863593" duration="12011000" />
       <workItem from="1622782752841" duration="20885000" />
-      <workItem from="1622869878522" duration="22540000" />
+      <workItem from="1622869878522" duration="22661000" />
+      <workItem from="1623041121996" duration="18345000" />
+      <workItem from="1623072369865" duration="1471000" />
     </task>
+    <task id="LOCAL-00001" summary="Added model validator">
+      <created>1622900567550</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1622900567550</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -126,5 +127,9 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added model validator" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added model validator" />
   </component>
 </project>

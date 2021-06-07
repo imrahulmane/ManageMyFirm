@@ -26,12 +26,12 @@ class CustomerValidator extends BaseValidator
             ],
 
             'update' => [
-                'first_name'=>['sometimes','string'],
-                'last_name'=>['sometimes','string'],
-                'middle_name'=>['sometimes','string'],
-                'email'=>['sometimes','email'],
-                'gender' => ['sometimes', 'string'],
-                'company_id' => ['sometimes', 'string']
+                'first_name'=>['sometimes', 'required','string'],
+                'last_name'=>['sometimes', 'required' ,'string'],
+                'middle_name'=>['sometimes','required', 'string'],
+                'email'=>['sometimes','required', 'email'],
+                'gender' => ['sometimes', 'required' , 'string'],
+                'company_id' => ['sometimes', 'required', 'string']
             ]
         ];
     }

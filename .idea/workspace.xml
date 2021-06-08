@@ -2,9 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="10b6d09d-e858-4941-89db-2a9dc40f470b" name="Default Changelist" comment="Added model validator">
+      <change beforePath="$PROJECT_DIR$/.idea/ManageMyFirm.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ManageMyFirm.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Exceptions/ExceptionHandler.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Exceptions/ExceptionHandler.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/api/serviceApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/serviceApi.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/ServiceController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ServiceController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/util/DatabaseUtil.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/util/DatabaseUtil.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/util/slim.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/util/slim.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/InstalledVersions.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/InstalledVersions.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/autoload_files.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/autoload_files.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/autoload_psr4.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/autoload_psr4.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/autoload_static.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/autoload_static.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/installed.json" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/installed.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/installed.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/installed.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/composer/package-versions-deprecated/src/PackageVersions/Versions.php" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/composer/package-versions-deprecated/src/PackageVersions/Versions.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +76,11 @@
       <path value="$PROJECT_DIR$/vendor/symfony/finder" />
       <path value="$PROJECT_DIR$/vendor/nesbot/carbon" />
       <path value="$PROJECT_DIR$/vendor/egulias/email-validator" />
+      <path value="$PROJECT_DIR$/vendor/phpoption/phpoption" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/vendor/graham-campbell/result-type" />
+      <path value="$PROJECT_DIR$/vendor/vlucas/phpdotenv" />
+      <path value="$PROJECT_DIR$/vendor/symfony/var-dumper" />
     </include_path>
   </component>
   <component name="ProjectId" id="1tKqLzpWYViCeME96oVHyUuKswX" />
@@ -102,7 +121,7 @@
       <workItem from="1622869878522" duration="22661000" />
       <workItem from="1623041121996" duration="18345000" />
       <workItem from="1623072369865" duration="1657000" />
-      <workItem from="1623129208197" duration="10656000" />
+      <workItem from="1623129208197" duration="22482000" />
     </task>
     <task id="LOCAL-00001" summary="Added model validator">
       <created>1622900567550</created>

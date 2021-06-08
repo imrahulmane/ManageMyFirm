@@ -4,7 +4,8 @@ require __DIR__ . '/../util/slim.php';
 
 
 $app->post('/service', function ($request, $response){
-    $data = $request->getParsedBody();
+    $data = $request->getParam('data');
+    $data = json_decode($data, true);
     $serviceController = new ServiceController();
     $result = $serviceController->addService($data);
     return $response->withJson($result);

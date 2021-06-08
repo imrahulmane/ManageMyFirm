@@ -37,6 +37,7 @@ final class Versions
   'doctrine/inflector' => '1.4.4@4bd5c1cdfcd00e9e2d8c484f79150f67e5d355d9',
   'doctrine/lexer' => '1.2.1@e864bbf5904cb8f5bb334f99209b48018522f042',
   'egulias/email-validator' => '2.1.25@0dbf5d78455d4d6a41d186da50adc1122ec066f4',
+  'graham-campbell/result-type' => 'v1.0.1@7e279d2cd5d7fbb156ce46daada972355cea27bb',
   'illuminate/container' => 'v5.8.36@b42e5ef939144b77f78130918da0ce2d9ee16574',
   'illuminate/contracts' => 'v5.8.36@00fc6afee788fa07c311b0650ad276585f8aef96',
   'illuminate/filesystem' => 'v5.8.36@494ba903402d64ec49c8d869ab61791db34b2288',
@@ -48,6 +49,7 @@ final class Versions
   'mongodb/mongodb' => '1.8.0@953dbc19443aa9314c44b7217a16873347e6840d',
   'nesbot/carbon' => '2.48.1@8d1f50f1436fb4b05e7127360483dd9c6e73da16',
   'nikic/fast-route' => 'v1.3.0@181d480e08d9476e61381e04a71b34dc0432e812',
+  'phpoption/phpoption' => '1.7.5@994ecccd8f3283ecf5ac33254543eb0ac946d525',
   'pimple/pimple' => 'v3.4.0@86406047271859ffc13424a048541f4531f53601',
   'psr/container' => '1.1.1@8622567409010282b7aeebe4bb841fe98b58dcaf',
   'psr/http-message' => '1.0.1@f6561bf28d520154e4b0ec72be95418abe6d9363',
@@ -57,6 +59,7 @@ final class Versions
   'symfony/finder' => 'v4.4.25@ed33314396d968a8936c95f5bd1b88bd3b3e94a3',
   'symfony/http-foundation' => 'v4.4.25@0c79d5a65ace4fe66e49702658c024a419d2438b',
   'symfony/mime' => 'v5.3.0@ed710d297b181f6a7194d8172c9c2423d58e4852',
+  'symfony/polyfill-ctype' => 'v1.23.0@46cd95797e9df938fdd2b03693b5fca5e64b01ce',
   'symfony/polyfill-intl-idn' => 'v1.23.0@65bd267525e82759e7d8c4e8ceea44f398838e65',
   'symfony/polyfill-intl-normalizer' => 'v1.23.0@8590a5f561694770bdcd3f9b5c69dde6945028e8',
   'symfony/polyfill-mbstring' => 'v1.23.0@2df51500adbaebdc4c38dea4c89a2e131c45c8a1',
@@ -64,7 +67,9 @@ final class Versions
   'symfony/polyfill-php80' => 'v1.23.0@eca0bf41ed421bed1b57c4958bab16aa86b757d0',
   'symfony/translation' => 'v5.3.0@251de0d921c42ef0a81494d8f37405421deefdf6',
   'symfony/translation-contracts' => 'v2.4.0@95c812666f3e91db75385749fe219c5e494c7f95',
-  '__root__' => 'dev-master@4b0a15590626645f16c1b04dee1c9f111aa764fa',
+  'vlucas/phpdotenv' => 'v5.3.0@b3eac5c7ac896e52deab4a99068e3f4ab12d9e56',
+  'symfony/var-dumper' => 'v5.3.0@1d3953e627fe4b5f6df503f356b6545ada6351f3',
+  '__root__' => 'dev-master@87cb0060bf14e6beafb6dd382602a1f353da6e35',
 );
 
     private function __construct()

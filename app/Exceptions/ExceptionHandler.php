@@ -7,6 +7,6 @@ namespace App\Exceptions;
 class ExceptionHandler
 {
     protected function isDebug() {
-        return true;
+        return getenv('DEBUG') == "true" ;
     }
 }

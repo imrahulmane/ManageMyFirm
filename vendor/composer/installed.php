@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '4b0a15590626645f16c1b04dee1c9f111aa764fa',
+    'reference' => '87cb0060bf14e6beafb6dd382602a1f353da6e35',
     'name' => '__root__',
   ),
   'versions' => 
@@ -18,7 +18,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '4b0a15590626645f16c1b04dee1c9f111aa764fa',
+      'reference' => '87cb0060bf14e6beafb6dd382602a1f353da6e35',
     ),
     'composer/package-versions-deprecated' => 
     array (
@@ -55,6 +55,15 @@
       array (
       ),
       'reference' => '0dbf5d78455d4d6a41d186da50adc1122ec066f4',
+    ),
+    'graham-campbell/result-type' => 
+    array (
+      'pretty_version' => 'v1.0.1',
+      'version' => '1.0.1.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '7e279d2cd5d7fbb156ce46daada972355cea27bb',
     ),
     'illuminate/container' => 
     array (
@@ -162,6 +171,15 @@
         0 => '1.11.99',
       ),
     ),
+    'phpoption/phpoption' => 
+    array (
+      'pretty_version' => '1.7.5',
+      'version' => '1.7.5.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '994ecccd8f3283ecf5ac33254543eb0ac946d525',
+    ),
     'pimple/pimple' => 
     array (
       'pretty_version' => 'v3.4.0',
@@ -250,6 +268,15 @@
       ),
       'reference' => 'ed710d297b181f6a7194d8172c9c2423d58e4852',
     ),
+    'symfony/polyfill-ctype' => 
+    array (
+      'pretty_version' => 'v1.23.0',
+      'version' => '1.23.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '46cd95797e9df938fdd2b03693b5fca5e64b01ce',
+    ),
     'symfony/polyfill-intl-idn' => 
     array (
       'pretty_version' => 'v1.23.0',
@@ -319,6 +346,24 @@
       array (
         0 => '2.3',
       ),
+    ),
+    'symfony/var-dumper' => 
+    array (
+      'pretty_version' => 'v5.3.0',
+      'version' => '5.3.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '1d3953e627fe4b5f6df503f356b6545ada6351f3',
+    ),
+    'vlucas/phpdotenv' => 
+    array (
+      'pretty_version' => 'v5.3.0',
+      'version' => '5.3.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'b3eac5c7ac896e52deab4a99068e3f4ab12d9e56',
     ),
   ),
 );

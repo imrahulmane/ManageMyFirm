@@ -17,8 +17,11 @@ class ServiceController
 {
     public function addService($data){
         //validate data
-        $servicevalidator = new ServiceValidator($data, 'add');
-        $servicevalidator->validate();
+//        $servicevalidator = new ServiceValidator($data, 'add');
+//        $servicevalidator->validate();
+
+        return $data;
+        exit();
 
 
         //insert data into collection
@@ -120,9 +123,7 @@ class ServiceController
         foreach ($services as $key => $service) {
             $services[$key]['customer_name'] = $customerIdAndNameMapping[$service['cust_id']];
         }
-
         return $services;
-
     }
 
 

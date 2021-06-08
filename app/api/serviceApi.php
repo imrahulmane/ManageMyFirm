@@ -18,16 +18,18 @@ $app->put('/service/{service_id}', function ($request, $response){
     return $response->withJson($result);
 });
 
-$app->get('/service/{service_id}', function ($request, $response){
-    $serviceId = $request->getAttribute('service_id');
+$app->get('/service/{customer_id}', function ($request, $response){
+    $customerId = $request->getAttribute('customer_id');
     $serviceController = new ServiceController();
-    $result = $serviceController->getService($serviceId);
+    $result = $serviceController->getService($customerId);
     return $response->withJson($result);
 });
 
 $app->get('/service', function ($request, $response){
+    $searchCriteria = $request->getParam('data');
+    $searchCriteria = json_decode($searchCriteria, 1);
     $serviceController = new ServiceController();
-    $result = $serviceController->getAllServices();
+    $result = $serviceController->getAllServices($searchCriteria);
     return $response->withJson($result);
 });
 

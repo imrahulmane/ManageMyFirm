@@ -17,12 +17,8 @@ class ServiceController
 {
     public function addService($data){
         //validate data
-//        $servicevalidator = new ServiceValidator($data, 'add');
-//        $servicevalidator->validate();
-
-        return $data;
-        exit();
-
+        $servicevalidator = new ServiceValidator($data, 'add');
+        $servicevalidator->validate();
 
         //insert data into collection
         $serviceDataProvider = new ServiceDataProvider();
@@ -47,7 +43,7 @@ class ServiceController
 
     public function updateService($serviceId, $data){
         //validate data
-        $servicevalidator = new ServiceValidator($data, 'add');
+        $servicevalidator = new ServiceValidator($data, 'update');
         $servicevalidator->validate();
 
 
@@ -94,6 +90,7 @@ class ServiceController
         return $services;
 
     }
+
     public function getAllServices($searchCriteria){
         $serviceDataProvider = new ServiceDataProvider();
         $searchArray = [];
@@ -146,36 +143,38 @@ class ServiceController
 
     }
 
-    public function changeStatus($serviceId){
+    public function completeService($serviceId){
         $serviceDataProvider = new ServiceDataProvider();
-        $searchArray = ['_id' => new ObjectId($serviceId)];
-        $service = $serviceDataProvider->findOne($searchArray);
+        $searchArray = ['$and' => [['_id' => new ObjectId($serviceId)], ['status' => 'active']]];
+        $foundService = $serviceDataProvider->findOne($searchArray);
 
-        if($service == false) {
+        if($foundService == false) {
             return [
                 'status' => 'failed',
-                'message' => 'Invalid service ID'
+                'message' => 'Invalid service ID or Service is already completed'
             ];
         }
+        $foundService['total_service_price'] = 0; //Initially, set total_service_price to zero
 
-        //get service hours
-        $startDateTime = $service['start_date_time'];
-        $endDateTime = $service['end_date_time'];
-        $serviceHours = $this->getServiceHours($startDateTime, $endDateTime);
+        foreach ($foundService['services'] as $key => $service) {
+            //get service hours
+            $startDateTime = $service['start_date_time'];
+            $endDateTime = $service['end_date_time'];
+            $serviceHours = $this->getServiceHours($startDateTime, $endDateTime);
+            //calculate total price
+            $totalPrice = $this->calculateTotalPrice($serviceHours, $service['item_id'], $service['quantity']);
+            $foundService['services'][$key]['service_price'] = $totalPrice;
+            $foundService['total_service_price'] += $totalPrice;
+        }
 
-        //calculate total price
-        $totalPrice = $this->calculateTotalPrice($serviceHours, $service['item_id']);
-
-        $service['total_price'] = $totalPrice;
-        $service['status'] = 'completed';
-
+        $foundService['status'] = 'completed';
         //update service in collection
-        $updateArray = ['$set' => $service];
+        $updateArray = ['$set' => $foundService];
         $serviceDataProvider->updateOne($searchArray, $updateArray);
 
         return [
             'status' => 'success',
-            'message' => "service is completed, Please collect $totalPrice"
+            'message' => "service is completed, Please collect Rs. ".  $foundService['total_service_price']
         ];
 
     }
@@ -195,15 +194,15 @@ class ServiceController
             $endofday = clone $date;
             $endofday->setTime(17, 00);
 
-            if($date >= $startofday && $date <= $endofday){
+            if($date >= $startofday && $date < $endofday){
                 $halfHoursCount++;
             }
         }
-
         return $halfHoursCount;
+
     }
 
-    private function calculateTotalPrice($serviceHours, $itemId) {
+    private function calculateTotalPrice($serviceHours, $itemId, $quantity) {
         $hours = $serviceHours / 2; // convert half hours to hour
 
         //get per_hour_price from item
@@ -211,8 +210,8 @@ class ServiceController
         $searchArray = ['_id' => new ObjectId($itemId)];
         $item = $itemDataProvider->findOne($searchArray);
 
-        $cost_per_hour = $item['cost_per_hr'];
-        $totalPrice = $cost_per_hour * $hours;
+        $cost_per_hour_into_quantity = $item['cost_per_hr'] * $quantity;
+        $totalPrice = $cost_per_hour_into_quantity * $hours;
         return $totalPrice;
     }
 }

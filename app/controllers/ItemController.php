@@ -4,6 +4,7 @@
 namespace App\controllers;
 
 use App\providers\ItemDataProvider;
+use App\providers\ServiceDataProvider;
 use App\validators\ItemValidator;
 use MongoDB\BSON\ObjectId;
 
@@ -69,9 +70,15 @@ class ItemController
         return $item;
     }
 
-    public function getAllItems(){
+    public function getAllItems($searchCriteria){
         $itemDataProvider = new ItemDataProvider();
-        $items = $itemDataProvider->find();
+        $searchArray = [];
+
+        if(!empty($searchCriteria)){
+            $searchArray = $searchCriteria;
+        }
+
+        $items = $itemDataProvider->find($searchArray);
 
         if($items == false) {
             return [
@@ -100,7 +107,21 @@ class ItemController
             'status' => 'success',
             'message' => 'Item Deleted Successfully'
         ];
+     }
 
+     public function searchItem($searchCriteria) {
+        $itemDataProvider = new ItemDataProvider();
+        $searchArray = ['type' => $searchCriteria];
+        $item = $itemDataProvider->findOne($searchArray);
+
+        if($item == false) {
+            return [
+                'status' => 'false',
+                'message' => "couldn't find out item"
+            ];
+        }
+
+        return $item;
      }
 
     //utility functions

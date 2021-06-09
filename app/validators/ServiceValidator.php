@@ -21,16 +21,19 @@ class ServiceValidator extends BaseValidator
         return [
             'add' => [
                 'cust_id' => ['required', 'string'],
-                'item_id' => ['required', 'string'],
-                'start_date_time' => ['required', 'string'],
-                'end_date_time' => ['required', 'string'],
-                'address' => ['required', 'string']
+                'address' => ['required', 'string'],
+                'services.*.item_id' => ['required', 'string'],
+                'services.*.start_date_time' => ['required', 'string'],
+                'services.*.end_date_time' => ['required', 'string'],
+                'services.*.quantity' => ['required', 'numeric'],
             ],
             'update' => [
-                'item_id' => ['sometimes', 'string'],
-                'start_date_time' => ['sometimes', 'string'],
-                'end_date_time' => ['sometimes', 'string'],
-                'address' => ['sometimes', 'string']
+                'cust_id' => ['sometimes','required', 'string'],
+                'address' => ['sometimes','required', 'string'],
+                'services.*.item_id' => ['sometimes','required', 'string'],
+                'services.*.start_date_time' => ['sometimes','required', 'string'],
+                'services.*.end_date_time' => ['sometimes','required', 'string'],
+                'services.*.quantity' => ['sometimes','required','numeric'],
             ]
         ];
     }

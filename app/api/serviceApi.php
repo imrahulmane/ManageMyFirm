@@ -13,7 +13,8 @@ $app->post('/service', function ($request, $response){
 
 $app->put('/service/{service_id}', function ($request, $response){
     $serviceId = $request->getAttribute('service_id');
-    $data = $request->getParsedBody();
+    $data = $request->getParam('data');
+    $data = json_decode($data, true);
     $serviceController = new ServiceController();
     $result = $serviceController->updateService($serviceId, $data);
     return $response->withJson($result);
@@ -44,7 +45,7 @@ $app->delete('/service/{service_id}', function ($request, $response){
 $app->patch('/service/{service_id}', function ($request, $response){
     $serviceId = $request->getAttribute('service_id');
     $serviceController = new ServiceController();
-    $result = $serviceController->changeStatus($serviceId);
+    $result = $serviceController->completeService($serviceId);
     return $response->withJson($result);
 });
 

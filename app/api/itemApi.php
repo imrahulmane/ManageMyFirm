@@ -28,8 +28,10 @@ $app->get('/item/{item_id}', function ($request, $response){
 });
 
 $app->get('/item', function ($request, $response){
+    $searchCriteria = $request->getParam('data');
+    $searchCriteria = json_decode($searchCriteria, 1);
     $itemController = new ItemController();
-    $result = $itemController->getAllItems();
+    $result = $itemController->getAllItems($searchCriteria);
     return $response->withJson($result);
 });
 
@@ -37,6 +39,13 @@ $app->delete('/item/{item_id}', function ($request, $response){
     $itemId = $request->getAttribute('item_id');
     $itemController = new ItemController();
     $result = $itemController->deleteItem($itemId);
+    return $response->withJson($result);
+});
+
+$app->get('/items/search', function ($request, $response){
+    $searchCriteria = $request->getParam('data');
+    $itemController = new ItemController();
+    $result = $itemController->searchItem($searchCriteria);
     return $response->withJson($result);
 });
 

@@ -7,6 +7,7 @@ namespace App\controllers;
 use App\providers\CustomerDataProvider;
 use App\providers\ItemDataProvider;
 use App\providers\ServiceDataProvider;
+use App\util\BaseDataProvider;
 use App\validators\ServiceValidator;
 use DateInterval;
 use DatePeriod;
@@ -107,15 +108,7 @@ class ServiceController
             $customerIds [] = new ObjectId($service['cust_id']);
         }
 
-        $options = ['projection' => ['first_name' => 1, 'middle_name' => 1, 'last_name' => 1]];
-        $customerSearchArray = ['_id' => ['$in' => $customerIds]];
-        $customerDataProvider = new CustomerDataProvider();
-        $customers = $customerDataProvider->find($customerSearchArray, $options);
-
-        $customerIdAndNameMapping = [];
-        foreach ($customers as $customer){
-            $customerIdAndNameMapping[(string) $customer['_id']] = $customer['first_name'] . ' ' . $customer['middle_name'] . ' ' . $customer['last_name'];
-        }
+        $customerIdAndNameMapping = $this->getCustomerIdAndNameMapping($customerIds);
 
         foreach ($services as $key => $service) {
             $services[$key]['customer_name'] = $customerIdAndNameMapping[$service['cust_id']];
@@ -178,6 +171,80 @@ class ServiceController
         ];
 
     }
+
+    public function stats() {
+        $serviceDataProvider = new ServiceDataProvider();
+        $searchArray = [
+            ['$match' => ['status' => 'completed']],
+            ['$unwind' => '$services'],
+            ['$group' =>
+                ['_id' => ['item_id' => '$services.item_id', 'custo_id' => '$cust_id'],
+                  'price' => ['$sum' => '$services.service_price'],
+                  'count' => ['$sum' => 1]
+                ]
+            ],
+            [
+                '$project' => [
+                    '_id' => 0,
+                  'customer_id' => '$_id.custo_id',
+                  'item_id' => '$_id.item_id',
+                  'price' => '$price',
+                  'count' => '$count'
+                ]
+            ]
+        ];
+
+        $retrivedData = $serviceDataProvider->aggregate($searchArray);
+
+        $customerIds = [];
+        $itemIds = [];
+        foreach ($retrivedData as $result) {
+            if(!in_array($result['customer_id'], $customerIds)) {
+                $customerIds [] = new ObjectId($result['customer_id']);
+            }
+            if(!in_array($result['item_id'], $itemIds)) {
+                $itemIds [] = new ObjectId($result['item_id']);
+            }
+        }
+
+        $customerIdAndNameMapping = $this->getCustomerIdAndNameMapping($customerIds);
+
+        $itemSearchArray = ['_id' => ['$in' => $itemIds]];
+        $itemOptions = ['projection' => ['type' => 1]];
+
+        $itemDataProvider = new ItemDataProvider();
+        $items = $itemDataProvider->find($itemSearchArray, $itemOptions);
+
+        $itemIdAndNameMapping = [];
+        foreach ($items as $item){
+            $itemIdAndNameMapping[(string) $item['_id']] = $item['type'];
+        }
+
+        foreach ($retrivedData as $key => $result) {
+            $retrivedData[$key]['customer_name'] = $customerIdAndNameMapping[$result['customer_id']];
+            $retrivedData[$key]['item_name'] = $itemIdAndNameMapping[$result['item_id']];
+
+            unset($retrivedData[$key]['customer_id']);
+            unset($retrivedData[$key]['item_id']);
+        }
+
+        return $retrivedData;
+    }
+
+    private function getCustomerIdAndNameMapping($customerIds)
+    {
+        $customerDataProvider = new CustomerDataProvider();
+        $options = ['projection' => ['first_name' => 1, 'middle_name' => 1, 'last_name' => 1]];
+        $customerSearchArray = ['_id' => ['$in' => $customerIds]];
+        $customers = $customerDataProvider->find($customerSearchArray, $options);
+
+        $customerIdAndNameMapping = [];
+        foreach ($customers as $customer) {
+            $customerIdAndNameMapping[(string)$customer['_id']] = $customer['first_name'] . ' ' . $customer['middle_name'] . ' ' . $customer['last_name'];
+        }
+        return $customerIdAndNameMapping;
+    }
+
 
     private function getServiceHours($start, $end){
         $startDate = new DateTime($start);

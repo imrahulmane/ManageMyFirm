@@ -3,11 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="10b6d09d-e858-4941-89db-2a9dc40f470b" name="Default Changelist" comment="Added model validator">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/itemApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/itemApi.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/api/serviceApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/serviceApi.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/controllers/ItemController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ItemController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/ServiceController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ServiceController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/validators/ServiceValidator.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/validators/ServiceValidator.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/util/BaseDataProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/util/BaseDataProvider.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +109,8 @@
       <workItem from="1623041121996" duration="18345000" />
       <workItem from="1623072369865" duration="1657000" />
       <workItem from="1623129208197" duration="23305000" />
-      <workItem from="1623215280837" duration="17576000" />
+      <workItem from="1623215280837" duration="17662000" />
+      <workItem from="1623301827266" duration="9899000" />
     </task>
     <task id="LOCAL-00001" summary="Added model validator">
       <created>1622900567550</created>

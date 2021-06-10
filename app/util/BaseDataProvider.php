@@ -56,7 +56,7 @@ abstract class BaseDataProvider
     }
 
     public function aggregate($pipeline) {
-        return $this->collectionObj->aggregate($pipeline);
+        return $this->collectionObj->aggregate($pipeline)->toArray();
     }
 
     public  function bulkInsert($data) {

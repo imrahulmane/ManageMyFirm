@@ -49,6 +49,13 @@ $app->patch('/service/{service_id}', function ($request, $response){
     return $response->withJson($result);
 });
 
+$app->get('/services', function ($request, $response){
+    $serviceController = new ServiceController();
+    $result = $serviceController->stats();
+    return $response->withJson($result);
+});
+
+
 //$app->post('service', function ($request, $response){});
 
 

@@ -2,8 +2,6 @@
 
 
 namespace App\controllers;
-
-
 use App\providers\CustomerDataProvider;
 use App\providers\ItemDataProvider;
 use App\providers\ServiceDataProvider;
@@ -21,10 +19,14 @@ class ServiceController
         $servicevalidator = new ServiceValidator($data, 'add');
         $servicevalidator->validate();
 
+        $data = $this->setServicePriceAndTotalServicePrice($data);
+
         //insert data into collection
         $serviceDataProvider = new ServiceDataProvider();
 
         $data['status'] = 'active'; //set status
+        $data['payment'] = 'pending'; //set payment status to pending
+        $data['amt_paid'] = 0;
 
         $result = $serviceDataProvider->insertOne($data);
 
@@ -47,12 +49,20 @@ class ServiceController
         $servicevalidator = new ServiceValidator($data, 'update');
         $servicevalidator->validate();
 
-
         //check service is completed or not
         $serviceDataProvider = new ServiceDataProvider();
         $searchArray = ['_id' => new ObjectId($serviceId)];
 
         $service = $serviceDataProvider->findOne($searchArray);
+
+        if($service == null) {
+            return[
+                'status' => 'failed',
+                'message' => "Please provide valid service ID"
+            ];
+        }
+
+        //get status of service
         $status = $service['status'];
 
         //check if status is completed, if yes then user can't update information
@@ -62,6 +72,9 @@ class ServiceController
                 'message' => "The service you are trying to update is completed. You can't change it"
             ];
         }
+
+        //update price if quantity or dates are changed
+        $data = $this->setServicePriceAndTotalServicePrice($data);
 
         $updateArray = ['$set' => $data];
         $serviceDataProvider->updateOne($searchArray, $updateArray);
@@ -89,7 +102,6 @@ class ServiceController
         }
 
         return $services;
-
     }
 
     public function getAllServices($searchCriteria){
@@ -136,28 +148,70 @@ class ServiceController
 
     }
 
-    public function completeService($serviceId){
+    public function completePayment($serviceId, $amount) {
+        $serviceDataProvider = new ServiceDataProvider();
+        $searchArray = ['$and' => [['_id' => new ObjectId($serviceId)],
+            ['$or' => [['payment' => 'pending'],
+                ['payment' => 'partial_pending']]]]];
+
+        $foundService = $serviceDataProvider->findOne($searchArray);
+
+        if ($foundService == false) {
+            return [
+                'status' => 'failed',
+                        'message' => 'Invalid service ID or Service is completed'
+                    ];
+        }
+
+        $amount = (int) $amount;
+        $dueAmount = $foundService['total_service_price'] - $foundService['amt_paid'];
+
+        if ($dueAmount < $amount) {
+            return [
+                'status' => 'failed',
+                'message' => 'Due amount is less than amount provided.'
+            ];
+        }
+
+        if ($dueAmount == $amount){
+            $foundService['payment'] = 'paid';
+            $foundService['amt_paid'] += $amount;
+        }
+        else {
+            $foundService['amt_paid'] = $amount;
+            $foundService['payment'] = 'partial_pending';
+        }
+
+        //update service in collection
+        $updateArray = ['$set' => $foundService];
+        $serviceDataProvider->updateOne($searchArray, $updateArray);
+
+        return [
+            'status' => 'success',
+            'message' => "Payment is completed, Thank You! "
+        ];
+
+    }
+
+    public function completeService($serviceId)
+    {
         $serviceDataProvider = new ServiceDataProvider();
         $searchArray = ['$and' => [['_id' => new ObjectId($serviceId)], ['status' => 'active']]];
         $foundService = $serviceDataProvider->findOne($searchArray);
 
-        if($foundService == false) {
+        if ($foundService == false) {
             return [
                 'status' => 'failed',
                 'message' => 'Invalid service ID or Service is already completed'
             ];
         }
-        $foundService['total_service_price'] = 0; //Initially, set total_service_price to zero
 
-        foreach ($foundService['services'] as $key => $service) {
-            //get service hours
-            $startDateTime = $service['start_date_time'];
-            $endDateTime = $service['end_date_time'];
-            $serviceHours = $this->getServiceHours($startDateTime, $endDateTime);
-            //calculate total price
-            $totalPrice = $this->calculateTotalPrice($serviceHours, $service['item_id'], $service['quantity']);
-            $foundService['services'][$key]['service_price'] = $totalPrice;
-            $foundService['total_service_price'] += $totalPrice;
+        //retutn fail if payment is not done
+        if (!$foundService['payment'] == "completed") {
+            return [
+                'status' => 'failed',
+                'message' => 'Please complete your payment first'
+            ];
         }
 
         $foundService['status'] = 'completed';
@@ -167,7 +221,7 @@ class ServiceController
 
         return [
             'status' => 'success',
-            'message' => "service is completed, Please collect Rs. ".  $foundService['total_service_price']
+            'message' => "service is completed, Please collect Rs. " . $foundService['total_service_price']
         ];
 
     }
@@ -229,6 +283,61 @@ class ServiceController
         }
 
         return $retrivedData;
+    }
+
+
+    public function billRemaining() {
+        $serviceDataProvider =  new ServiceDataProvider();
+
+        $pipeline = [
+            ['$match' => ['status' => 'active']],
+            [
+                '$group' => [
+                    '_id' => '$cust_id',
+                    'totalAmount' => ['$sum' => '$total_service_price'],
+                    'totalAmountPaid' => ['$sum' => '$amt_paid']
+                ]
+            ],
+            [
+                '$addFields' => [
+                    'totalAmountDue' => ['$subtract' => ['$totalAmount', '$totalAmountPaid']]
+                ]
+            ]
+        ];
+
+        $retrivedData = $serviceDataProvider->aggregate($pipeline);
+
+        $customerIds = [];
+        foreach ($retrivedData as $result) {
+                $customerIds [] = new ObjectId($result['_id']);
+        }
+
+        $customerIdAndNameMapping = $this->getCustomerIdAndNameMapping($customerIds);
+
+        foreach ($retrivedData as $key => $result) {
+            $retrivedData[$key]['Customer Name'] = $customerIdAndNameMapping[$result['_id']];
+        }
+
+        return $retrivedData;
+    }
+
+
+    private function setServicePriceAndTotalServicePrice($data){
+        $data['total_service_price'] = 0; //Initially, set total_service_price to zero
+
+        //iterate and add service price
+        foreach ($data['services'] as $key => $service) {
+            //get service hours
+            $startDateTime = $service['start_date_time'];
+            $endDateTime = $service['end_date_time'];
+            $serviceHours = $this->getServiceHours($startDateTime, $endDateTime);
+            //calculate total price
+            $totalPrice = $this->calculateTotalPrice($serviceHours, $service['item_id'], $service['quantity']);
+            $data['services'][$key]['service_price'] = $totalPrice;
+            $data['total_service_price'] += $totalPrice;
+        }
+
+        return $data;
     }
 
     private function getCustomerIdAndNameMapping($customerIds)

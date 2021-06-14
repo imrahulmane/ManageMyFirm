@@ -5,7 +5,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/api/serviceApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/serviceApi.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/ServiceController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ServiceController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/util/BaseDataProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/util/BaseDataProvider.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -110,7 +109,9 @@
       <workItem from="1623072369865" duration="1657000" />
       <workItem from="1623129208197" duration="23305000" />
       <workItem from="1623215280837" duration="17662000" />
-      <workItem from="1623301827266" duration="9899000" />
+      <workItem from="1623301827266" duration="9949000" />
+      <workItem from="1623389070237" duration="5846000" />
+      <workItem from="1623645297944" duration="14593000" />
     </task>
     <task id="LOCAL-00001" summary="Added model validator">
       <created>1622900567550</created>

@@ -42,6 +42,14 @@ $app->delete('/service/{service_id}', function ($request, $response){
     return $response->withJson($result);
 });
 
+$app->patch('/service/payment/{service_id}', function ($request, $response) {
+    $serviceId = $request->getAttribute('service_id');
+    $amount = $request->getParam('amount');
+    $serviceController = new ServiceController();
+    $result = $serviceController->completePayment($serviceId, $amount);
+    return $response->withJson($result);
+});
+
 $app->patch('/service/{service_id}', function ($request, $response){
     $serviceId = $request->getAttribute('service_id');
     $serviceController = new ServiceController();
@@ -52,6 +60,12 @@ $app->patch('/service/{service_id}', function ($request, $response){
 $app->get('/services', function ($request, $response){
     $serviceController = new ServiceController();
     $result = $serviceController->stats();
+    return $response->withJson($result);
+});
+
+$app->get('/services/bill', function ($request, $response){
+    $serviceController = new ServiceController();
+    $result = $serviceController->billRemaining();
     return $response->withJson($result);
 });
 

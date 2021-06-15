@@ -7,6 +7,8 @@ use App\providers\CustomerDataProvider;
 use App\validators\CustomerValidator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
+use App\providers\HistoryDataProvider;
+require __DIR__ . '/../util/constants.php';
 
 class CustomerController
 {
@@ -131,18 +133,35 @@ class CustomerController
     }
 
     public function searchCustomers($data){
+        $historyDataProvider =  new HistoryDataProvider();
+        $insertHistory = [
+            'search' => $data,
+            'type' => CUSTOMER_TYPE
+        ];
+        $historyDataProvider->insertOne($insertHistory);
+
+
         $customerDataProvider = new CustomerDataProvider();
         $regex = ['$regex' => new Regex("^$data", 'i')];
         $searchArray = ['$or' =>
         [
             ['first_name' => $regex],
             ['middle_name'=> $regex],
-            ['last_name' => $regex]
+            ['last_name' => $regex],
+            ['description' => $regex]
         ]
         ];
 
-        $customers = $customerDataProvider->find($searchArray);
-        return $customers;
+        $options = ['projection' => ['_id' => 0,  'first_name' => 1, 'middle_name' => 1 ,'last_name' => 1, 'description' => 1]];
+        $customers = $customerDataProvider->find($searchArray, $options);
+
+        $result = [];
+        foreach ($customers as $customer){
+            $result [] = array_values(preg_grep("/^$data/i", $customer));
+        }
+
+        $result = array_merge(...$result);
+        return $result;
     }
 
     //utility functions

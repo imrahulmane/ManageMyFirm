@@ -3,10 +3,12 @@
 
 namespace App\controllers;
 
+require __DIR__ . '/../util/constants.php';
+require __DIR__ .'/../helpers/saveImage.php';
 
 use App\providers\CompanyDataProvider;
 use App\providers\CustomerDataProvider;
-use App\util\BaseDataProvider;
+use App\providers\HistoryDataProvider;
 use App\validators\CompanyValidator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
@@ -78,6 +80,9 @@ class CompanyController
         $searchArray = ['_id' => new ObjectId($company_id)];
         $result = $companyDataProvider->findOne($searchArray);
 
+        saveImageToFolder("https://picsum.photos/id/1/200/300", 'f.png');
+
+
         if($result == false){
             return[
                 'status' => 'failed',
@@ -128,17 +133,39 @@ class CompanyController
     }
 
     public function searchCompanies($data){
+        //save history
+        $historyDataProvider =  new HistoryDataProvider();
+        $insertHistory = [
+            'search' => $data,
+            'type' => COMPANY_TYPE
+        ];
+        $historyDataProvider->insertOne($insertHistory);
+
         $companyDataProvider = new CompanyDataProvider();
         $regex = ['$regex' => new Regex("^$data" ,"i")];
-        $searchArray = ['name' => $regex];
-        $result = $companyDataProvider->find($searchArray);
+        $searchArray = [
+            '$or' => [
+                ['name' => $regex],
+                ['support_email' => $regex]
+            ]
+        ];
+        $options = ['projection' => ['_id' => 0 ,'name' => 1, 'support_email' => 1] ];
+        $companies = $companyDataProvider->find($searchArray, $options);
 
-        if($result == false){
+        if($companies == false){
             return [
                 'status' => 'failed',
                 'message' => 'please provide valid data'
             ];
         }
+
+        $result = [];
+
+        foreach ($companies as $company) {
+            $result [] = array_values(preg_grep("/^$data/i", $company));
+        }
+
+        $result = array_merge(...$result);
 
         return $result;
     }

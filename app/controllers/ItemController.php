@@ -2,11 +2,13 @@
 
 
 namespace App\controllers;
-
+require __DIR__ . '/../util/constants.php';
+use App\providers\HistoryDataProvider;
 use App\providers\ItemDataProvider;
 use App\providers\ServiceDataProvider;
 use App\validators\ItemValidator;
 use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\Regex;
 
 class ItemController
 {
@@ -110,18 +112,37 @@ class ItemController
      }
 
      public function searchItem($searchCriteria) {
-        $itemDataProvider = new ItemDataProvider();
-        $searchArray = ['type' => $searchCriteria];
-        $item = $itemDataProvider->findOne($searchArray);
 
-        if($item == false) {
+        $historyDataProvider = new HistoryDataProvider();
+        $insertHistory = [
+            'search' => $searchCriteria,
+            'type' => ITEM_TYPE
+        ];
+
+        $historyDataProvider->insertOne($insertHistory);
+
+        $itemDataProvider = new ItemDataProvider();
+        $regex = ['$regex' => new Regex("^$searchCriteria", "i")];
+        $searchArray = ['type' => $regex];
+        $options = ['projection' => ['_id' => 0, 'type' => 1]];
+        $items = $itemDataProvider->find($searchArray, $options);
+
+        if($items == false) {
             return [
                 'status' => 'false',
                 'message' => "couldn't find out item"
             ];
         }
 
-        return $item;
+        $result = [];
+
+         foreach ($items as $item) {
+             $result [] = array_values(preg_grep("/^$searchCriteria/i", $item));
+         }
+
+         $result = array_merge(...$result);
+
+        return $result;
      }
 
     //utility functions

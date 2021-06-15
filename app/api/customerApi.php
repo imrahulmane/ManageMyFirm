@@ -1,6 +1,8 @@
 <?php
 
 use App\controllers\CustomerController;
+
+
 require __DIR__ . '/../util/slim.php';
 
 $app->post('/customer', function ($request, $response){
@@ -40,7 +42,7 @@ $app->delete('/customer/{customer_id}', function ($request, $response){
 });
 
 $app->get('/customers/search', function ($request, $response){
-    $data = $request->getParam('data');
+    $data = $request->getParam('search');
     $customerController = new CustomerController();
     $result = $customerController->searchCustomers($data);
     return $response->withJson($result);

@@ -65,7 +65,7 @@ $app->get('/services', function ($request, $response){
 
 $app->get('/services/bill', function ($request, $response){
     $serviceController = new ServiceController();
-    $result = $serviceController->billRemaining();
+    $result = $serviceController->serviceAmountStats();
     return $response->withJson($result);
 });
 

@@ -178,6 +178,8 @@ class ServiceController
             $foundService['amt_paid'] += $amount;
         }
         else {
+            //TODO: check the amt_paid, try adding smaller smaller amount more time
+
             $foundService['amt_paid'] = $amount;
             $foundService['payment'] = 'partial_pending';
         }
@@ -207,7 +209,7 @@ class ServiceController
         }
 
         //retutn fail if payment is not done
-        if (!$foundService['payment'] == "completed") {
+        if ($foundService['payment'] != "completed" || $foundService['payment'] != "partial_pending") {
             return [
                 'status' => 'failed',
                 'message' => 'Please complete your payment first'
@@ -227,6 +229,8 @@ class ServiceController
     }
 
     public function stats() {
+
+
         $serviceDataProvider = new ServiceDataProvider();
         $searchArray = [
             ['$match' => ['status' => 'completed']],
@@ -249,6 +253,13 @@ class ServiceController
         ];
 
         $retrivedData = $serviceDataProvider->aggregate($searchArray);
+
+        if(empty($retrivedData)) {
+            return [
+                'status' => 'failed',
+                'message' => 'There are no services completed'
+            ];
+        }
 
         $customerIds = [];
         $itemIds = [];
@@ -286,26 +297,33 @@ class ServiceController
     }
 
 
-    public function billRemaining() {
+    public function serviceAmountStats() {
+        //TODO: only completed service and their total amount
         $serviceDataProvider =  new ServiceDataProvider();
 
         $pipeline = [
-            ['$match' => ['status' => 'active']],
+//            ['$match' => ['status' => 'active']],
             [
                 '$group' => [
                     '_id' => '$cust_id',
-                    'totalAmount' => ['$sum' => '$total_service_price'],
-                    'totalAmountPaid' => ['$sum' => '$amt_paid']
+                    'total_amount' => ['$sum' => '$total_service_price'],
+                    'total_amount_paid' => ['$sum' => '$amt_paid'],
+                    'total_complete_amount' => [
+                        '$sum' => ['$cond' => [  ['$eq' => ['$status', 'completed']],
+                            '$total_service_price',  0
+                        ]]
+                    ],
                 ]
             ],
             [
                 '$addFields' => [
-                    'totalAmountDue' => ['$subtract' => ['$totalAmount', '$totalAmountPaid']]
+                    'total_due_amount' => ['$subtract' => ['$total_amount', '$total_amount_paid']]
                 ]
             ]
         ];
 
         $retrivedData = $serviceDataProvider->aggregate($pipeline);
+        dd($retrivedData);
 
         $customerIds = [];
         foreach ($retrivedData as $result) {

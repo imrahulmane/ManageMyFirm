@@ -133,6 +133,8 @@ class CustomerController
     }
 
     public function searchCustomers($data){
+
+        //add to history collection
         $historyDataProvider =  new HistoryDataProvider();
         $insertHistory = [
             'search' => $data,
@@ -155,7 +157,15 @@ class CustomerController
         $options = ['projection' => ['_id' => 0,  'first_name' => 1, 'middle_name' => 1 ,'last_name' => 1, 'description' => 1]];
         $customers = $customerDataProvider->find($searchArray, $options);
 
+        if(empty($customers)) {
+            return [
+                'status' => 'failed',
+                'message' => 'Customers not found'
+            ];
+        }
+
         $result = [];
+
         foreach ($customers as $customer){
             $result [] = array_values(preg_grep("/^$data/i", $customer));
         }

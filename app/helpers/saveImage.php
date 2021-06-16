@@ -9,10 +9,6 @@ function saveImageToFolder($url, $name) {
         return false;
     }
 
-    return true;
+    return $path;
 }
-
-//$url = "https://picsum.photos/id/0/200/300";
-//$path = "/var/www/html/ManageMyFirm/app/public/images/twitter.png";
-//file_put_contents($path, file_get_contents($url));
 

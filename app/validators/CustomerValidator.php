@@ -22,7 +22,8 @@ class CustomerValidator extends BaseValidator
                 'middle_name'=>['required','string'],
                 'email'=>['bail','required','email'],
                 'gender' => ['required', 'string'],
-                'company_id' => ['required', 'string']
+                'company_id' => ['required', 'string'],
+//                'image' => ['required', 'string']
             ],
 
             'update' => [
@@ -31,7 +32,8 @@ class CustomerValidator extends BaseValidator
                 'middle_name'=>['sometimes','required', 'string'],
                 'email'=>['sometimes','required', 'email'],
                 'gender' => ['sometimes', 'required' , 'string'],
-                'company_id' => ['sometimes', 'required', 'string']
+                'company_id' => ['sometimes', 'required', 'string'],
+//                'image' => ['sometimes' ,'required', 'string']
             ]
         ];
     }

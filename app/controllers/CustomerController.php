@@ -4,19 +4,19 @@
 namespace App\controllers;
 use App\providers\CompanyDataProvider;
 use App\providers\CustomerDataProvider;
+use App\util\BaseDataProvider;
 use App\validators\CustomerValidator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use App\providers\HistoryDataProvider;
 require __DIR__ . '/../util/constants.php';
+require __DIR__ . '/../helpers/saveImage.php';
 
 class CustomerController
 {
-    public function addCustomer($data) {
+    public function addCustomer($data, $file) {
         $validator = new CustomerValidator($data, 'add');
         $validator->validate();
-
-        $customerDataProvider = new CustomerDataProvider();
 
         $isEmailExist = $this->checkEmailExist($data['email']);
 
@@ -27,7 +27,13 @@ class CustomerController
             ];
         }
 
+        //store image in public folder
+        $filePath = moveUploadedFile($file['image'], $data['email']);
+
+        $data['img_url'] = $filePath; //add filepath to customer schema
         $data['status'] = 'active';  //add status of customer
+
+        $customerDataProvider = new CustomerDataProvider();
         $result = $customerDataProvider->insertOne($data);
 
         if(!$result) {
@@ -207,5 +213,38 @@ class CustomerController
             return true;
         }
         return false;
+    }
+
+    public function updateProfileImage($customerId, $file)
+    {
+        $customerDataProvider = new CustomerDataProvider();
+        $searchArray = ['_id' => new ObjectId($customerId)];
+        $customer = $customerDataProvider->findOne($searchArray);
+
+        if($customer == false) {
+            return [
+                'status' => 'failed',
+                'messagae' => 'There is no customer with this customer ID'
+            ];
+        }
+
+        $imageName =$customer['email']; // assign image name as email of the customer
+//        dd($file['image']);
+        $imagePath = moveUploadedFile($file['image'], $imageName);
+
+        $customer['img_url'] = $imagePath;
+        $updateArray = ['$set' => $customer];
+        $customerDataProvider->updateOne($searchArray, $updateArray);
+
+        return [
+            'status' => 'success',
+            'message' => 'Profile Image updated successfully'
+        ];
+
+    }
+
+    public function deleteProfileImage($customer_id)
+    {
+
     }
 }

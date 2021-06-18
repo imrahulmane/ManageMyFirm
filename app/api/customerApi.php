@@ -58,9 +58,9 @@ $app->post('/customers/image/{cust_id}', function($request, $response){
 });
 
 $app->delete('/customer/image/{customer_id}', function ($request, $response){
-    $customer_id = $request->getAttribute('customer_id');
+    $customerId = $request->getAttribute('customer_id');
     $customerController = new CustomerController();
-    $result = $customerController->deleteProfileImage($customer_id);
+    $result = $customerController->deleteProfileImage($customerId);
     return $response->withJson($result);
 });
 

@@ -4,7 +4,6 @@
 namespace App\controllers;
 use App\providers\CompanyDataProvider;
 use App\providers\CustomerDataProvider;
-use App\util\BaseDataProvider;
 use App\validators\CustomerValidator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
@@ -243,8 +242,29 @@ class CustomerController
 
     }
 
-    public function deleteProfileImage($customer_id)
+    public function deleteProfileImage($customerId)
     {
+        $customerDataProvider = new CustomerDataProvider();
+        $searchArray = ['_id' => new ObjectId($customerId)];
+        $customer = $customerDataProvider->findOne($searchArray);
 
+        if($customer == false) {
+            return [
+                'status' => 'failed',
+                'messagae' => 'There is no customer with this customer ID'
+            ];
+        }
+
+        $image = $customer['img_url'];
+        unlink($image);
+
+        $customer['img_url'] = "";
+        $updateArray = ['$set' => $customer];
+        $customerDataProvider->updateOne($searchArray, $updateArray);
+
+        return [
+            'status' => 'success',
+            'message' => 'Profile Image deleted successfully'
+        ];
     }
 }

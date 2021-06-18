@@ -5,10 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/api/customerApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/customerApi.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/CustomerController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/CustomerController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/helpers/saveImage.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/helpers/saveImage.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/public/images/f.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/public/images/twitter.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/validators/CustomerValidator.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/validators/CustomerValidator.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/public/images/rahul@gmail.com.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,7 +129,8 @@
       <workItem from="1623820633450" duration="1064000" />
       <workItem from="1623821736778" duration="20924000" />
       <workItem from="1623907033216" duration="14594000" />
-      <workItem from="1623930430174" duration="2046000" />
+      <workItem from="1623930430174" duration="3327000" />
+      <workItem from="1624007780326" duration="1605000" />
     </task>
     <task id="LOCAL-00001" summary="Added model validator">
       <created>1622900567550</created>

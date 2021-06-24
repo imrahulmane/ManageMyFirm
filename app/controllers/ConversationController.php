@@ -4,9 +4,11 @@
 namespace App\controllers;
 
 
+use App\helpers\TagCRUD;
 use App\providers\ConversationDataProvider;
 use App\providers\CounterDataProvider;
 use App\providers\CustomerDataProvider;
+use App\util\BaseDataProvider;
 use App\validators\ConversationValidator;
 use MongoDB\BSON\ObjectId;
 
@@ -22,9 +24,24 @@ class ConversationController
         $latestCounter = $counter + 1;
 
         $data['conv_id'] = $latestCounter;
-        $result = $conversationDataProvider->insertOne($data);
 
-        if(!$result) {
+        //remove tags from $data
+        if($data['tags']) {
+            $tags = $data['tags'];
+            $tags = explode(" ", $tags);
+            unset($data['tags']);
+        }
+
+        $conversationId = $conversationDataProvider->insertOne($data);
+
+        //add system tags and custom tags
+        if($tags) {
+            $this->addTags($conversationId, $data['action_message'], $tags);
+        } else {
+            $this->addTags($conversationId, $data['action_message']);
+        }
+
+        if(!$conversationId) {
             return[
                 'status'=> 'failed',
                 'message'=> 'Failed to insert Data'
@@ -38,6 +55,32 @@ class ConversationController
             'status' => 'success',
             'message' => 'Conversation Added Successfully'
         ];
+    }
+
+    private function addTags($conversationId, $name, $tags = []) {
+        //add system tag to the customer
+        $tagsHelper = new TagCRUD();
+        $systemTagIds = $tagsHelper->addSystemTag($conversationId, $name, 'conversation');
+
+        if(!empty($tags)){
+            $tagIds = $tagsHelper->addCustomTags($conversationId, $tags, 'conversation');
+        }
+
+        $conversationDataProvider = new ConversationDataProvider();
+        $searchArray = ['_id' => new ObjectId($conversationId)];
+
+        $conversation = $conversationDataProvider->findOne($searchArray);
+
+        if(!empty($tags)){
+            $conversation['system_tags'] = $systemTagIds;
+            $conversation['tags'] = $tagIds;
+        } else {
+            $conversation['system_tags'] = (string) $systemTagIds;
+        }
+
+        $updateArray = ['$set' => $conversation];
+        $conversationDataProvider->updateOne($searchArray, $updateArray);
+
     }
 
     public function updateConversation($conversationId, $data) {

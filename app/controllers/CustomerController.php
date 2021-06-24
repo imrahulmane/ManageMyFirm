@@ -2,8 +2,10 @@
 
 
 namespace App\controllers;
+use App\helpers\TagCRUD;
 use App\providers\CompanyDataProvider;
 use App\providers\CustomerDataProvider;
+use App\util\BaseDataProvider;
 use App\validators\CustomerValidator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
@@ -25,17 +27,30 @@ class CustomerController
                 'message' => 'Email address is already taken.'
             ];
         }
-
         //store image in public folder
         $filePath = moveUploadedFile($file['image'], $data['email']);
 
         $data['img_url'] = $filePath; //add filepath to customer schema
         $data['status'] = 'active';  //add status of customer
 
-        $customerDataProvider = new CustomerDataProvider();
-        $result = $customerDataProvider->insertOne($data);
+        if($data['tags']) {
+            $tags = $data['tags'];
+            $tags = explode(" ", $tags);
+            unset($data['tags']);
+        }
 
-        if(!$result) {
+        $customerDataProvider = new CustomerDataProvider();
+        $customerId = $customerDataProvider->insertOne($data);  //returns inserted customer id
+
+        //add system tags and custom tags
+        if($tags) {
+            $this->addTags($customerId, $data['first_name'], $tags);
+        } else {
+            $this->addTags($customerId, $data['first_name']);
+        }
+
+
+        if(!$customerId) {
             return [
                 'status' => 'failed',
                 'message' => 'There is problem inserting a customer'
@@ -45,6 +60,32 @@ class CustomerController
             'status' => 'success',
             'message' => 'Customer added Successfully'
         ];
+    }
+
+    private function addTags($customerId, $name, $tags = []) {
+        //add system tag to the customer
+        $tagsHelper = new TagCRUD();
+        $systemTagIds = $tagsHelper->addSystemTag($customerId, $name, 'customer');
+
+        if(!empty($tags)){
+            $tagIds = $tagsHelper->addCustomTags($customerId, $tags, 'customer');
+        }
+
+        $customerDataProvider = new CustomerDataProvider();
+        $searchArray = ['_id' => new ObjectId($customerId)];
+
+        $customer = $customerDataProvider->findOne($searchArray);
+
+        if(!empty($tags)){
+            $customer['system_tags'] = $systemTagIds;
+            $customer['tags'] = $tagIds;
+        } else {
+            $customer['system_tags'] = (string) $systemTagIds;
+        }
+
+        $updateArray = ['$set' => $customer];
+        $customerDataProvider->updateOne($searchArray, $updateArray);
+
     }
 
     public function updateCustomer($customer_id, $data){
@@ -103,7 +144,6 @@ class CustomerController
         }
 
         $customers = $customerDataProvider->find($searchArray);
-
         if(empty($customers)) {
             return [
                 'status' => 'failed',
@@ -121,7 +161,6 @@ class CustomerController
     public function deleteCustomer($customer_id){
         $customerDataProvider = new CustomerDataProvider();
         $searchArray = ['_id' => new ObjectId($customer_id)];
-
         $result = $customerDataProvider->deleteOne($searchArray);
 
         if($result == 0) {
@@ -170,7 +209,6 @@ class CustomerController
         }
 
         $result = [];
-
         foreach ($customers as $customer){
             $result [] = array_values(preg_grep("/^$data/i", $customer));
         }
@@ -193,7 +231,6 @@ class CustomerController
                 'message' => "Couldn't find company name with the company ID"
             ];
         }
-
         return $company;
     }
 
@@ -207,7 +244,6 @@ class CustomerController
         }
 
         $isEmailExist = $customerDataProvider->findOne($emailSearchArray);
-
         if($isEmailExist) {
             return true;
         }

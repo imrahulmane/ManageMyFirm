@@ -4,10 +4,12 @@
 namespace App\controllers;
 
 
+use App\helpers\TagCRUD;
 use App\providers\ActionDataProvider;
 use App\providers\CompanyDataProvider;
 use App\providers\CounterDataProvider;
 use App\providers\CustomerDataProvider;
+use App\util\BaseDataProvider;
 use App\validators\ActionValidator;
 use MongoDB\BSON\ObjectId;
 
@@ -21,10 +23,25 @@ class ActionController
         $counter = $this->getCounter();
         $latestCounter = $counter + 1;
 
-        $data['action_id'] = $latestCounter;
-        $result = $actionDataProvider->insertOne($data);
+        $data['action_id'] = $latestCounter; //add action_id
 
-        if(!$result) {
+        //remove tags from $data
+        if($data['tags']) {
+            $tags = $data['tags'];
+            $tags = explode(" ", $tags);
+            unset($data['tags']);
+        }
+
+        $actionId = $actionDataProvider->insertOne($data);
+
+        //add system tags and custom tags
+        if($tags) {
+            $this->addTags($actionId, $data['action_message'], $tags);
+        } else {
+            $this->addTags($actionId, $data['action_message']);
+        }
+
+        if(!$actionId) {
             return [
                 'status' => 'failed',
                 'message' => 'There is problem in inserting data'
@@ -38,6 +55,32 @@ class ActionController
             'status' => 'success',
             'message' => 'Action created successfully'
         ];
+    }
+
+    private function addTags($actionId, $name, $tags = []) {
+        //add system tag to the customer
+        $tagsHelper = new TagCRUD();
+        $systemTagIds = $tagsHelper->addSystemTag($actionId, $name, 'action');
+
+        if(!empty($tags)){
+            $tagIds = $tagsHelper->addCustomTags($actionId, $tags, 'action');
+        }
+
+        $actionDataProvider = new ActionDataProvider();
+        $searchArray = ['_id' => new ObjectId($actionId)];
+
+        $action = $actionDataProvider->findOne($searchArray);
+
+        if(!empty($tags)){
+            $action['system_tags'] = $systemTagIds;
+            $action['tags'] = $tagIds;
+        } else {
+            $action['system_tags'] = (string) $systemTagIds;
+        }
+
+        $updateArray = ['$set' => $action];
+        $actionDataProvider->updateOne($searchArray, $updateArray);
+
     }
 
     public function updateAction($actionId, $data){
@@ -208,5 +251,6 @@ class ActionController
             ];
         }
     }
+
 
 }

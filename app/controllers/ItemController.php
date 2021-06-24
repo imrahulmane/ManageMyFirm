@@ -3,9 +3,12 @@
 
 namespace App\controllers;
 require __DIR__ . '/../util/constants.php';
+
+use App\helpers\TagCRUD;
 use App\providers\HistoryDataProvider;
 use App\providers\ItemDataProvider;
 use App\providers\ServiceDataProvider;
+use App\util\BaseDataProvider;
 use App\validators\ItemValidator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
@@ -19,9 +22,24 @@ class ItemController
         //insert data into collection
         $itemDataProvider = new ItemDataProvider();
         $data['cost_per_hr'] = (int) $data['cost_per_hr']; //convert to int
-        $result = $itemDataProvider->insertOne($data);
 
-        if(!$result) {
+        //remove tags from $data
+        if($data['tags']) {
+            $tags = $data['tags'];
+            $tags = explode(" ", $tags);
+            unset($data['tags']);
+        }
+
+        $itemID = $itemDataProvider->insertOne($data);
+
+        //add system tags and custom tags
+        if($tags) {
+            $this->addTags($itemID, $data['action_message'], $tags);
+        } else {
+            $this->addTags($itemID, $data['action_message']);
+        }
+
+        if(!$itemID) {
             //return false if data is not inserted
             return [
                 'status' => 'failed',
@@ -33,6 +51,33 @@ class ItemController
             'status' => 'success',
             'message' => 'Successfully added item'
         ];
+    }
+
+
+    private function addTags($itemID, $name, $tags = []) {
+        //add system tag to the customer
+        $tagsHelper = new TagCRUD();
+        $systemTagIds = $tagsHelper->addSystemTag($itemID, $name, 'item');
+
+        if(!empty($tags)){
+            $tagIds = $tagsHelper->addCustomTags($itemID, $tags, 'item');
+        }
+
+        $itemDataProvider = new ItemDataProvider();
+        $searchArray = ['_id' => new ObjectId($itemID)];
+
+        $item = $itemDataProvider->findOne($searchArray);
+
+        if(!empty($tags)){
+            $item['system_tags'] = $systemTagIds;
+            $item['tags'] = $tagIds;
+        } else {
+            $item['system_tags'] = $systemTagIds;
+        }
+
+        $updateArray = ['$set' => $item];
+        $itemDataProvider->updateOne($searchArray, $updateArray);
+
     }
 
     public function updateItem($itemId, $data) {

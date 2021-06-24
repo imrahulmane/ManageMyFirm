@@ -3,9 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" id="10b6d09d-e858-4941-89db-2a9dc40f470b" name="Default Changelist" comment="Added model validator">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/api/customerApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/customerApi.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/controllers/ActionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ActionController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/controllers/CompanyController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/CompanyController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/controllers/ConversationController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ConversationController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/CustomerController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/CustomerController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/public/images/rahul@gmail.com.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/controllers/ItemController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ItemController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/public/images/9e887a3d805d62cb.png" beforeDir="false" afterPath="$PROJECT_DIR$/app/public/images/9e887a3d805d62cb.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/public/images/conor@gmail.com" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/public/images/conor@gmail.com.png" beforeDir="false" afterPath="$PROJECT_DIR$/app/public/images/conor@gmail.com.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/util/BaseDataProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/util/BaseDataProvider.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,9 +34,11 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/app/helpers/saveImage.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/app/helpers/TagCRUD.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/app/providers/TagDataProvider.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/app/validators/CustomerValidator.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/app/util/BaseDataProvider.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/app/helpers/saveImage.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/app/controllers/CompanyController.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/app/controllers/CustomerController.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/app/controllers/ItemController.php" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
@@ -131,6 +139,8 @@
       <workItem from="1623907033216" duration="14594000" />
       <workItem from="1623930430174" duration="3327000" />
       <workItem from="1624007780326" duration="1605000" />
+      <workItem from="1624078627397" duration="4481000" />
+      <workItem from="1624514642630" duration="15909000" />
     </task>
     <task id="LOCAL-00001" summary="Added model validator">
       <created>1622900567550</created>

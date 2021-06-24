@@ -18,7 +18,7 @@ abstract class BaseDataProvider
 
     public function insertOne($data){
         $result = $this->collectionObj->insertOne($data);
-        return $result->isAcknowledged();
+        return $result->getInsertedId();
     }
 
     public function updateOne($searchArray, $updateArray) {

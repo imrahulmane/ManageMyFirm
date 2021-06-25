@@ -4,7 +4,7 @@
 namespace App\controllers;
 require __DIR__ . '/../util/constants.php';
 
-use App\helpers\TagCRUD;
+use App\helpers\TagService;
 use App\providers\HistoryDataProvider;
 use App\providers\ItemDataProvider;
 use App\providers\ServiceDataProvider;
@@ -33,11 +33,12 @@ class ItemController
         $itemID = $itemDataProvider->insertOne($data);
 
         //add system tags and custom tags
+        $tagService = new TagService();
         if($tags) {
-            $this->addTags($itemID, $data['action_message'], $tags);
-        } else {
-            $this->addTags($itemID, $data['action_message']);
+            $tagService->addTags($itemDataProvider, $itemID, $data['type'], 'item', $tags);
         }
+        $tagService->addTags($itemDataProvider, $itemID, $data['type'], 'item');
+
 
         if(!$itemID) {
             //return false if data is not inserted
@@ -53,38 +54,9 @@ class ItemController
         ];
     }
 
-
-    private function addTags($itemID, $name, $tags = []) {
-        //add system tag to the customer
-        $tagsHelper = new TagCRUD();
-        $systemTagIds = $tagsHelper->addSystemTag($itemID, $name, 'item');
-
-        if(!empty($tags)){
-            $tagIds = $tagsHelper->addCustomTags($itemID, $tags, 'item');
-        }
-
-        $itemDataProvider = new ItemDataProvider();
-        $searchArray = ['_id' => new ObjectId($itemID)];
-
-        $item = $itemDataProvider->findOne($searchArray);
-
-        if(!empty($tags)){
-            $item['system_tags'] = $systemTagIds;
-            $item['tags'] = $tagIds;
-        } else {
-            $item['system_tags'] = $systemTagIds;
-        }
-
-        $updateArray = ['$set' => $item];
-        $itemDataProvider->updateOne($searchArray, $updateArray);
-
-    }
-
     public function updateItem($itemId, $data) {
         //validate data
         $this->validateData($data, 'update');
-
-        //TODO: check cost is changing, if yes then change in service collection also [only if status is active]
 
         //update data
         $itemDataProvider = new ItemDataProvider();
@@ -106,6 +78,17 @@ class ItemController
         //fetch item
         $item = $itemDataProvider->findOne($searchArray);
 
+        //get tag names
+        if($item['system_tags']) {
+            $systemTagNames = TagService::getTagNames($item['system_tags']);
+            $item['system_tags'] = $systemTagNames;
+        }
+
+        if($item['tags']){
+            $customTagNames = TagService::getTagNames($item['tags']);
+            $item['tags'] = $customTagNames;
+        }
+
         //return failed message is item is not present
         if($item == false) {
             return [
@@ -126,6 +109,19 @@ class ItemController
         }
 
         $items = $itemDataProvider->find($searchArray);
+
+        foreach ($items as $key => $item){
+            //get tag names
+            if($item['system_tags']) {
+                $systemTagNames = TagService::getTagNames($item['system_tags']);
+                $items[$key]['system_tags'] = $systemTagNames;
+            }
+
+            if($item['tags']){
+                $customTagNames = TagService::getTagNames($item['tags']);
+                $items[$key]['tags'] = $customTagNames;
+            }
+        }
 
         if($items == false) {
             return [

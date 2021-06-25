@@ -35,8 +35,8 @@ abstract class BaseDataProvider
         return  $this->collectionObj->find($searchArray, $options)->toArray();
     }
 
-    public function findOne($searchArray, $projection =[]){
-        return $this->collectionObj->findOne($searchArray, ['projection' => $projection]);
+    public function findOne($searchArray, $options =[]){
+        return $this->collectionObj->findOne($searchArray, $options);
     }
 
     public function deleteOne($searchArray) {

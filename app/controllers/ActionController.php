@@ -4,12 +4,14 @@
 namespace App\controllers;
 
 
-use App\helpers\TagCRUD;
+use App\helpers\TagService;
 use App\providers\ActionDataProvider;
 use App\providers\CompanyDataProvider;
 use App\providers\CounterDataProvider;
 use App\providers\CustomerDataProvider;
+use App\providers\TagDataProvider;
 use App\util\BaseDataProvider;
+use App\util\MongoUtil;
 use App\validators\ActionValidator;
 use MongoDB\BSON\ObjectId;
 
@@ -33,13 +35,14 @@ class ActionController
         }
 
         $actionId = $actionDataProvider->insertOne($data);
+        $tagService = new TagService();
 
         //add system tags and custom tags
         if($tags) {
-            $this->addTags($actionId, $data['action_message'], $tags);
-        } else {
-            $this->addTags($actionId, $data['action_message']);
+            $tagService->addTags($actionDataProvider, $actionId, $data['action_message'], 'action', $tags);
         }
+        $tagService->addTags($actionDataProvider, $actionId, $data['action_message'], 'action');
+
 
         if(!$actionId) {
             return [
@@ -55,32 +58,6 @@ class ActionController
             'status' => 'success',
             'message' => 'Action created successfully'
         ];
-    }
-
-    private function addTags($actionId, $name, $tags = []) {
-        //add system tag to the customer
-        $tagsHelper = new TagCRUD();
-        $systemTagIds = $tagsHelper->addSystemTag($actionId, $name, 'action');
-
-        if(!empty($tags)){
-            $tagIds = $tagsHelper->addCustomTags($actionId, $tags, 'action');
-        }
-
-        $actionDataProvider = new ActionDataProvider();
-        $searchArray = ['_id' => new ObjectId($actionId)];
-
-        $action = $actionDataProvider->findOne($searchArray);
-
-        if(!empty($tags)){
-            $action['system_tags'] = $systemTagIds;
-            $action['tags'] = $tagIds;
-        } else {
-            $action['system_tags'] = (string) $systemTagIds;
-        }
-
-        $updateArray = ['$set' => $action];
-        $actionDataProvider->updateOne($searchArray, $updateArray);
-
     }
 
     public function updateAction($actionId, $data){
@@ -115,6 +92,17 @@ class ActionController
 
             $actions[$key]['customer_name'] = $customerName;
             $actions[$key]['company_name'] = $companyName;
+
+            //get tag names
+            if($action['system_tags']) {
+                $systemTagNames = TagService::getTagNames($action['system_tags']);
+                $actions[$key]['system_tags'] = $systemTagNames;
+            }
+
+            if($action['tags']){
+                $customTagNames = TagService::getTagNames($action['tags']);
+                $actions[$key]['tags'] = $customTagNames;
+            }
         }
 
         return $actions;
@@ -139,6 +127,17 @@ class ActionController
             unset($actions[$key]['customer_id']);
             $actions[$key]['customer_name'] = $customerName;
             $actions[$key]['company_name'] = $companyName;
+
+            //get tag names
+            if($action['system_tags']) {
+                $systemTagNames = TagService::getTagNames($action['system_tags']);
+                $actions[$key]['system_tags'] = $systemTagNames;
+            }
+
+            if($action['tags']){
+                $customTagNames = TagService::getTagNames($action['tags']);
+                $actions[$key]['tags'] = $customTagNames;
+            }
         }
 
         return $actions;
@@ -251,6 +250,33 @@ class ActionController
             ];
         }
     }
+
+
+//    private function addTags($actionId, $name, $tags = []) {
+//        //add system tag to the customer
+//        $tagsHelper = new TagService();
+//        $systemTagIds = $tagsHelper->addSystemTag($actionId, $name, 'action');
+//
+//        if(!empty($tags)){
+//            $tagIds = $tagsHelper->addCustomTags($actionId, $tags, 'action');
+//        }
+//
+//        $actionDataProvider = new ActionDataProvider();
+//        $searchArray = ['_id' => new ObjectId($actionId)];
+//
+//        $action = $actionDataProvider->findOne($searchArray);
+//
+//        if(!empty($tags)){
+//            $action['system_tags'] = $systemTagIds;
+//            $action['tags'] = $tagIds;
+//        } else {
+//            $action['system_tags'] = (string) $systemTagIds;
+//        }
+//
+//        $updateArray = ['$set' => $action];
+//        $actionDataProvider->updateOne($searchArray, $updateArray);
+//
+//    }
 
 
 }

@@ -2,10 +2,13 @@
 
 
 namespace App\controllers;
-use App\helpers\TagCRUD;
+use App\helpers\TagService;
 use App\providers\CompanyDataProvider;
 use App\providers\CustomerDataProvider;
+use App\providers\TagDataProvider;
+use App\util\ArrayUtil;
 use App\util\BaseDataProvider;
+use App\util\MongoUtil;
 use App\validators\CustomerValidator;
 use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
@@ -43,12 +46,11 @@ class CustomerController
         $customerId = $customerDataProvider->insertOne($data);  //returns inserted customer id
 
         //add system tags and custom tags
+        $tagService = new TagService();
         if($tags) {
-            $this->addTags($customerId, $data['first_name'], $tags);
-        } else {
-            $this->addTags($customerId, $data['first_name']);
+            $tagService->addTags($customerDataProvider, $customerId, $data['first_name'], 'customer', $tags);
         }
-
+        $tagService->addTags($customerDataProvider, $customerId, $data['first_name'], 'customer');
 
         if(!$customerId) {
             return [
@@ -60,32 +62,6 @@ class CustomerController
             'status' => 'success',
             'message' => 'Customer added Successfully'
         ];
-    }
-
-    private function addTags($customerId, $name, $tags = []) {
-        //add system tag to the customer
-        $tagsHelper = new TagCRUD();
-        $systemTagIds = $tagsHelper->addSystemTag($customerId, $name, 'customer');
-
-        if(!empty($tags)){
-            $tagIds = $tagsHelper->addCustomTags($customerId, $tags, 'customer');
-        }
-
-        $customerDataProvider = new CustomerDataProvider();
-        $searchArray = ['_id' => new ObjectId($customerId)];
-
-        $customer = $customerDataProvider->findOne($searchArray);
-
-        if(!empty($tags)){
-            $customer['system_tags'] = $systemTagIds;
-            $customer['tags'] = $tagIds;
-        } else {
-            $customer['system_tags'] = (string) $systemTagIds;
-        }
-
-        $updateArray = ['$set' => $customer];
-        $customerDataProvider->updateOne($searchArray, $updateArray);
-
     }
 
     public function updateCustomer($customer_id, $data){
@@ -120,9 +96,21 @@ class CustomerController
         $searchArray = ['_id'=> new ObjectId($customer_id)];
         $customer = $customerDataProvider->findOne($searchArray);
 
-        $company = $this->getCompany($customer['company_id']);
+        //get company name
+        $companyDataProvider = new CompanyDataProvider();
+        $searchArray = ['_id' => new ObjectId($customer['company_id'])];
+        $options = ['projection' => ['_id' => 0, 'name' => 1]];
+        $company_name = $companyDataProvider->findOne($searchArray, $options);
         unset($customer['company_id']);
-        $customer['company_name'] = $company['name'];
+        $customer['company_name'] = $company_name;
+
+        //get tag names
+        $systemTagNames = TagService::getTagNames($customer['system_tags']);
+        $customer['system_tags'] = $systemTagNames;
+        if($customer['tags']){
+            $customTagNames = TagService::getTagNames($customer['tags']);
+            $customer['tags'] = $customTagNames;
+        }
 
         if($customer == false) {
             return [
@@ -144,6 +132,7 @@ class CustomerController
         }
 
         $customers = $customerDataProvider->find($searchArray);
+
         if(empty($customers)) {
             return [
                 'status' => 'failed',
@@ -151,10 +140,24 @@ class CustomerController
             ];
         }
 
+        $companies = $this->getCompanies(array_column($customers, 'company_id'));
+
+
         foreach ($customers as $key => $customer) {
-            $company = $this->getCompany($customer['company_id']);
-            $customers[$key]['company_name'] = $company['name'];
+            $customers[$key]['company_name'] = $companies[$customer['company_id']]['name'];
+
+            //get tag names
+            if($customer['system_tags']) {
+                $systemTagNames = TagService::getTagNames($customer['system_tags']);
+                $customers[$key]['system_tags'] = $systemTagNames;
+            }
+
+            if($customer['tags']){
+                $customTagNames = TagService::getTagNames($customer['tags']);
+                $customers[$key]['tags'] = $customTagNames;
+            }
         }
+
         return $customers;
     }
 
@@ -186,52 +189,55 @@ class CustomerController
         ];
         $historyDataProvider->insertOne($insertHistory);
 
-
+        //search customers
         $customerDataProvider = new CustomerDataProvider();
         $regex = ['$regex' => new Regex("^$data", 'i')];
         $searchArray = ['$or' =>
-        [
-            ['first_name' => $regex],
-            ['middle_name'=> $regex],
-            ['last_name' => $regex],
-            ['description' => $regex]
-        ]
+            [
+                ['first_name' => $regex],
+                ['middle_name'=> $regex],
+                ['last_name' => $regex],
+                ['description' => $regex]
+            ]
         ];
 
         $options = ['projection' => ['_id' => 0,  'first_name' => 1, 'middle_name' => 1 ,'last_name' => 1, 'description' => 1]];
         $customers = $customerDataProvider->find($searchArray, $options);
 
-        if(empty($customers)) {
-            return [
-                'status' => 'failed',
-                'message' => 'Customers not found'
-            ];
-        }
+        //search tags
+        $searchArrayTag = [ '$and' =>
+            [
+                ['module' => 'customer'],
+                ['tag_name' => $regex]
+            ]
+        ];
+        $optionsArrayTag = ['projection' => ['_id' => 0, 'tag_name' => 1]];
+        $tagDataProvider = new TagDataProvider();
+        $tagNames = $tagDataProvider->find($searchArrayTag, $optionsArrayTag);
+
+        $customersAndTagNames = array_merge($customers, $tagNames);
 
         $result = [];
-        foreach ($customers as $customer){
-            $result [] = array_values(preg_grep("/^$data/i", $customer));
+        foreach ($customersAndTagNames as $item){
+            $result [] = array_values(preg_grep("/^$data/i", $item));
         }
 
         $result = array_merge(...$result);
+
         return $result;
     }
 
     //utility functions
-    private function getCompany($company_id){
-        $searchArray = ['_id' => new ObjectId($company_id)];
-        $options = ['projection' => ['_id' => 0, 'name' => 1]];
+    private function getCompanies($companyIds){
+        $companyIds = MongoUtil::convertStringIdToObjectId($companyIds);
+        $searchArray = ['_id' => ['$in' => $companyIds]];
+        $options = ['projection' => ['name' => 1]];
 
         $companyDataProvider = new CompanyDataProvider();
-        $company = $companyDataProvider->findOne($searchArray, $options);
+        $companies = $companyDataProvider->find($searchArray, $options);
+        $companies = ArrayUtil::getKeyValueMap($companies);
 
-        if($company == false) {
-            return [
-                'status' => 'failed',
-                'message' => "Couldn't find company name with the company ID"
-            ];
-        }
-        return $company;
+        return $companies;
     }
 
     private function checkEmailExist($email, $customerId=false) {
@@ -304,3 +310,6 @@ class CustomerController
         ];
     }
 }
+
+
+

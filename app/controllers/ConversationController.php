@@ -4,7 +4,7 @@
 namespace App\controllers;
 
 
-use App\helpers\TagCRUD;
+use App\helpers\TagService;
 use App\providers\ConversationDataProvider;
 use App\providers\CounterDataProvider;
 use App\providers\CustomerDataProvider;
@@ -35,11 +35,12 @@ class ConversationController
         $conversationId = $conversationDataProvider->insertOne($data);
 
         //add system tags and custom tags
+        $tagService = new TagService();
         if($tags) {
-            $this->addTags($conversationId, $data['action_message'], $tags);
-        } else {
-            $this->addTags($conversationId, $data['action_message']);
+            $tagService->addTags($conversationDataProvider, $conversationId, $data['conversation_message'], 'conversation', $tags);
         }
+        $tagService->addTags($conversationDataProvider, $conversationId, $data['conversation_message'], 'conversation');
+
 
         if(!$conversationId) {
             return[
@@ -55,32 +56,6 @@ class ConversationController
             'status' => 'success',
             'message' => 'Conversation Added Successfully'
         ];
-    }
-
-    private function addTags($conversationId, $name, $tags = []) {
-        //add system tag to the customer
-        $tagsHelper = new TagCRUD();
-        $systemTagIds = $tagsHelper->addSystemTag($conversationId, $name, 'conversation');
-
-        if(!empty($tags)){
-            $tagIds = $tagsHelper->addCustomTags($conversationId, $tags, 'conversation');
-        }
-
-        $conversationDataProvider = new ConversationDataProvider();
-        $searchArray = ['_id' => new ObjectId($conversationId)];
-
-        $conversation = $conversationDataProvider->findOne($searchArray);
-
-        if(!empty($tags)){
-            $conversation['system_tags'] = $systemTagIds;
-            $conversation['tags'] = $tagIds;
-        } else {
-            $conversation['system_tags'] = (string) $systemTagIds;
-        }
-
-        $updateArray = ['$set' => $conversation];
-        $conversationDataProvider->updateOne($searchArray, $updateArray);
-
     }
 
     public function updateConversation($conversationId, $data) {
@@ -105,30 +80,59 @@ class ConversationController
         $search = ['customer_id' => $customerID];
         $options = ['sort' => ['reminder_date' => -1]];
 
-        $result = $conversationDataProvider->find($search, $options);
+        $conversations = $conversationDataProvider->find($search, $options);
 
-        if($result == false) {
+        foreach ($conversations as $key => $conversation){
+            //get tag names
+            if($conversation['system_tags']) {
+                $systemTagNames = TagService::getTagNames($conversation['system_tags']);
+                $conversations[$key]['system_tags'] = $systemTagNames;
+            }
+
+            if($conversation['tags']){
+                $customTagNames = TagService::getTagNames($conversation['tags']);
+                $conversations[$key]['tags'] = $customTagNames;
+            }
+        }
+
+        if($conversations == false) {
             return [
                 'status' => 'failed',
                 'message' => 'Please Provide Valid ID'
             ];
         }
-        return $result;
+        return $conversations;
     }
 
     public function getAllConversation($searchCriteria){
         $conversationDataProvider = new ConversationDataProvider();
         $searchArray = $searchCriteria;
+        if(is_null($searchCriteria)){
+            $searchArray = [];
+        }
 
-        $result = $conversationDataProvider->find($searchArray);
+        $conversations = $conversationDataProvider->find($searchArray);
 
-        if($result == false) {
+        foreach ($conversations as $key => $conversation){
+            //get tag names
+            if($conversation['system_tags']) {
+                $systemTagNames = TagService::getTagNames($conversation['system_tags']);
+                $conversations[$key]['system_tags'] = $systemTagNames;
+            }
+
+            if($conversation['tags']){
+                $customTagNames = TagService::getTagNames($conversation['tags']);
+                $conversations[$key]['tags'] = $customTagNames;
+            }
+        }
+
+        if($conversations == false) {
             return [
                 'status' => 'failed',
                 'message' => 'Please Provide Valid ID'
             ];
         }
-        return $result;
+        return $conversations;
     }
 
     public function deleteConversation($conversationId){
@@ -219,5 +223,4 @@ class ConversationController
             ];
         }
     }
-
 }

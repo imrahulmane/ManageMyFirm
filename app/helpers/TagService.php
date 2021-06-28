@@ -75,8 +75,8 @@ class TagService
         return $tagIds;
     }
 
-    public static function getTagNames($system_tags){
-        $tagIds = MongoUtil::convertStringIdToObjectId($system_tags);
+    public static function getTagNames($tagIds){
+        $tagIds = MongoUtil::convertStringIdToObjectId($tagIds);
 
         $tagDataProvider = new TagDataProvider();
 
@@ -85,6 +85,19 @@ class TagService
         $tagData = $tagDataProvider->find($searchArray, $options);
 
         return array_column($tagData, 'tag_name');
+    }
+
+    public static function getTagIds($regex){
+        $tagsDataProvider = new TagDataProvider();
+        $tagSearchArray = ['tag_name' => $regex];
+        $tagOptions = ['projection' => ['_id' => 0, 'reference_id' => 1]];
+        $tagIds = $tagsDataProvider->find($tagSearchArray, $tagOptions);
+        $tagIds = array_column($tagIds, 'reference_id');
+        foreach ($tagIds as $k => $id){
+            $tagIds[$k] = ['_id' => new ObjectId($id)];
+        }
+
+        return $tagIds;
     }
 
 }

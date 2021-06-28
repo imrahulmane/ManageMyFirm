@@ -6,13 +6,16 @@
   <component name="ChangeListManager">
     <list default="true" id="10b6d09d-e858-4941-89db-2a9dc40f470b" name="Default Changelist" comment="Added model validator">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/actionApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/actionApi.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/conversationApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/conversationApi.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/customerApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/customerApi.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/api/itemApi.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/itemApi.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/ActionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ActionController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/ConversationController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ConversationController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/CustomerController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/CustomerController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/controllers/ItemController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/ItemController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/helpers/TagCRUD.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/helpers/TagService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/helpers/saveImage.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/helpers/saveImage.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/util/BaseDataProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/util/BaseDataProvider.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/helpers/TagService.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/helpers/TagService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/public/images/bill@gmail.com.png" beforeDir="false" afterPath="$PROJECT_DIR$/app/public/images/bill@gmail.com.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +107,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="php.override.implement.member.chooser.php.doc" value="NONE" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RecentsManager">
@@ -143,7 +146,8 @@
       <workItem from="1624078627397" duration="4481000" />
       <workItem from="1624514642630" duration="16075000" />
       <workItem from="1624598504370" duration="19708000" />
-      <workItem from="1624628560981" duration="305000" />
+      <workItem from="1624628560981" duration="897000" />
+      <workItem from="1624857229861" duration="21957000" />
     </task>
     <task id="LOCAL-00001" summary="Added model validator">
       <created>1622900567550</created>

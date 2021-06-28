@@ -32,7 +32,6 @@ class CustomerController
         }
         //store image in public folder
         $filePath = moveUploadedFile($file['image'], $data['email']);
-
         $data['img_url'] = $filePath; //add filepath to customer schema
         $data['status'] = 'active';  //add status of customer
 
@@ -127,7 +126,7 @@ class CustomerController
         $customerDataProvider = new CustomerDataProvider();
         $searchArray = [];
 
-        if(!empty($searchCriteria)) {
+        if(!empty($data)) {
             $searchArray = $searchCriteria;
         }
 
@@ -141,8 +140,6 @@ class CustomerController
         }
 
         $companies = $this->getCompanies(array_column($customers, 'company_id'));
-
-
         foreach ($customers as $key => $customer) {
             $customers[$key]['company_name'] = $companies[$customer['company_id']]['name'];
 
@@ -179,7 +176,7 @@ class CustomerController
         ];
     }
 
-    public function searchCustomers($data){
+    public function suggestCustomers($data){
 
         //add to history collection
         $historyDataProvider =  new HistoryDataProvider();
@@ -217,14 +214,53 @@ class CustomerController
 
         $customersAndTagNames = array_merge($customers, $tagNames);
 
+
         $result = [];
         foreach ($customersAndTagNames as $item){
             $result [] = array_values(preg_grep("/^$data/i", $item));
         }
 
         $result = array_merge(...$result);
-
         return $result;
+    }
+
+    public function searchCustomers($data){
+        $regex = ['$regex' => new Regex("^$data", 'i')];  //for searching data
+
+        //search tags
+        $tagIds = TagService::getTagIds($regex);
+
+        //search customers
+        $customerDataProvider = new CustomerDataProvider();
+        $customerSearchArray = ['$or' =>
+            [
+                ['first_name' => $regex],
+                ['middle_name'=> $regex],
+                ['last_name' => $regex],
+            ]
+        ];
+
+        $searchArray = $customerSearchArray;
+        if(!empty($tagIds)) {
+            $searchArray = ['$or' =>
+                [
+                    ['$or' => $tagIds],
+                    $customerSearchArray
+                ]
+            ];
+        }
+
+        $customers = $customerDataProvider->find($searchArray);
+
+        foreach ($customers as $k => $customer){
+            if($customer['tags'] && $customer['system_tags']){
+                $customers[$k]['system_tags'] = TagService::getTagNames($customer['system_tags']);
+                $customers[$k]['tags'] = TagService::getTagNames($customer['tags']);
+            }
+        }
+
+
+        return $customers;
     }
 
     //utility functions

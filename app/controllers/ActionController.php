@@ -14,6 +14,7 @@ use App\util\BaseDataProvider;
 use App\util\MongoUtil;
 use App\validators\ActionValidator;
 use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\Regex;
 
 class ActionController
 {
@@ -179,7 +180,7 @@ class ActionController
         ];
     }
 
-    public function searchAction($data){
+    public function suggestAction($data){
         $actionDataProvider = new ActionDataProvider();
         $searchArray = [];
 
@@ -199,6 +200,38 @@ class ActionController
         return $result;
     }
 
+    public function searchAction($data){
+        $regex = ['$regex' => new Regex("^$data", 'i')];
+
+        //search tags
+        $tagIds = TagService::getTagIds($regex);
+
+        //search action
+        $actionDataProvider = new ActionDataProvider();
+        $actionSearchArray = ['action_message' => $regex];
+        $searchArray = $actionSearchArray;
+        if(!empty($tagIds)){
+            $searchArray = [ '$or' =>
+                [
+                    ['$or' => $tagIds],
+                    $actionSearchArray
+                ]
+            ];
+        }
+
+        $actions = $actionDataProvider->find($searchArray);
+        foreach ($actions as $k => $action){
+            if($action['tags'] && $action['system_tags']){
+                $actions[$k]['system_tags'] = TagService::getTagNames($action['system_tags']);
+                $actions[$k]['tags'] = TagService::getTagNames($action['tags']);
+            }
+        }
+
+
+        return $actions;
+    }
+
+    //utility functions
     private function getCounter(){
         $counterDataProvider = new CounterDataProvider();
         $searchArray = ['type' => 2];

@@ -45,12 +45,20 @@ $app->patch('/action/{action_id}', function ($request, $response){
     return $response->withJson($result);
 });
 
-$app->get('/actions/search', function ($request, $response){
+$app->get('/actions/suggest', function ($request, $response){
     $data = $request->getParam('data');
     $data = json_decode($data, 1);
+    $actionController = new ActionController();
+    $result = $actionController->suggestAction($data);
+    return $response->withJson($result);
+});
+
+$app->get('/actions/search', function ($request, $response){
+    $data = $request->getParam('data');
     $actionController = new ActionController();
     $result = $actionController->searchAction($data);
     return $response->withJson($result);
 });
+
 
 $app->run();

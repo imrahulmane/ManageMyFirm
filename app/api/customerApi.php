@@ -42,10 +42,10 @@ $app->delete('/customer/{customer_id}', function ($request, $response){
     return $response->withJson($result);
 });
 
-$app->get('/customers/search', function ($request, $response){
+$app->get('/customers/suggestion', function ($request, $response){
     $data = $request->getParam('search');
     $customerController = new CustomerController();
-    $result = $customerController->searchCustomers($data);
+    $result = $customerController->suggestCustomers($data);
     return $response->withJson($result);
 });
 
@@ -61,6 +61,13 @@ $app->delete('/customer/image/{customer_id}', function ($request, $response){
     $customerId = $request->getAttribute('customer_id');
     $customerController = new CustomerController();
     $result = $customerController->deleteProfileImage($customerId);
+    return $response->withJson($result);
+});
+
+$app->get('/customers/search', function ($request, $response){
+    $data = $request->getParam('data');
+    $customerController = new CustomerController();
+    $result = $customerController->searchCustomers($data);
     return $response->withJson($result);
 });
 

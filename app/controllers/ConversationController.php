@@ -11,6 +11,7 @@ use App\providers\CustomerDataProvider;
 use App\util\BaseDataProvider;
 use App\validators\ConversationValidator;
 use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\Regex;
 
 class ConversationController
 {
@@ -191,6 +192,36 @@ class ConversationController
             ];
         }
         return $result;
+    }
+
+    public function searchAllConversations($data){
+        $regex = ['$regex' => new Regex("^$data", "i")];
+
+        //search tags
+        $tagIds = TagService::getTagIds($regex);
+
+        //search conversation
+        $conversationDataProvider = new ConversationDataProvider();
+        $conversationSearchArray = ['conversation_message' => $regex];
+
+        $searchArray = $conversationSearchArray;
+        if(!empty($tagIds)){
+            $searchArray = ['$or' => [
+                ['$or' => $tagIds],
+                $conversationSearchArray
+            ]];
+        }
+
+        $conversations = $conversationDataProvider->find($searchArray);
+
+        foreach ($conversations as $k => $conversation){
+            if($conversation['tags']){
+                $conversations[$k]['system_tags'] = TagService::getTagNames($conversation['system_tags']);
+                $conversations[$k]['tags'] = TagService::getTagNames($conversation['tags']);
+            }
+        }
+
+        return $conversations;
 
     }
 

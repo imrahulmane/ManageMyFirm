@@ -42,12 +42,20 @@ $app->delete('/item/{item_id}', function ($request, $response){
     return $response->withJson($result);
 });
 
-$app->get('/items/search', function ($request, $response){
+$app->get('/items/suggest', function ($request, $response){
     $searchCriteria = $request->getParam('data');
     $itemController = new ItemController();
-    $result = $itemController->searchItem($searchCriteria);
+    $result = $itemController->suggestItem($searchCriteria);
     return $response->withJson($result);
 });
+
+$app->get('/items/search', function($request, $response){
+    $data = $request->getParam('data');
+    $itemController = new ItemController();
+    $result = $itemController->searchItems($data);
+    return $response->withJson($result);
+});
+
 
 //$app->post('item', function ($request, $response){});
 

@@ -56,6 +56,12 @@ $app->get('/conversations/search', function ($request, $response){
     return $response->withJson($result);
 });
 
+$app->get('/conversations/searchall', function($request, $response){
+    $data = $request->getParam('data');
+    $conversationController = new ConversationController();
+    $result = $conversationController->searchAllConversations($data);
+    return $response->withJson($result);
+});
 
 //$app->post('/', function ($request, $response){});
 

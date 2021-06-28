@@ -8,6 +8,7 @@ use App\helpers\TagService;
 use App\providers\HistoryDataProvider;
 use App\providers\ItemDataProvider;
 use App\providers\ServiceDataProvider;
+use App\providers\TagDataProvider;
 use App\util\BaseDataProvider;
 use App\validators\ItemValidator;
 use MongoDB\BSON\ObjectId;
@@ -152,7 +153,7 @@ class ItemController
         ];
      }
 
-     public function searchItem($searchCriteria) {
+     public function suggestItem($searchCriteria) {
 
         $historyDataProvider = new HistoryDataProvider();
         $insertHistory = [
@@ -168,22 +169,62 @@ class ItemController
         $options = ['projection' => ['_id' => 0, 'type' => 1]];
         $items = $itemDataProvider->find($searchArray, $options);
 
-        if($items == false) {
-            return [
-                'status' => 'false',
-                'message' => "couldn't find out item"
-            ];
-        }
+         //search tags
+         $searchArrayTag = [ '$and' =>
+             [
+                 ['module' => 'item'],
+                 ['tag_name' => $regex]
+             ]
+         ];
+         $optionsArrayTag = ['projection' => ['_id' => 0, 'tag_name' => 1]];
+         $tagDataProvider = new TagDataProvider();
+         $tagNames = $tagDataProvider->find($searchArrayTag, $optionsArrayTag);
 
-        $result = [];
+         $itemsAndTagNames = array_merge($items, $tagNames);
 
-         foreach ($items as $item) {
+
+         $result = [];
+
+         foreach ($itemsAndTagNames as $item) {
              $result [] = array_values(preg_grep("/^$searchCriteria/i", $item));
          }
 
          $result = array_merge(...$result);
 
         return $result;
+     }
+
+     public function searchItems($data){
+        $regex = [ '$regex'  => new Regex("^$data", 'i')];
+
+        //search tags
+         $tagIds = TagService::getTagIds($regex);
+
+         //search Items
+         $itemDataProvider = new ItemDataProvider();
+         $itemSearchArray = ['type' => $regex];
+         $searchArray = $itemSearchArray;
+
+         if(!empty($tagIds)){
+             $searchArray = [ '$or' =>
+                 [
+                    ['$or' => $tagIds],
+                    $itemSearchArray
+                 ]
+             ];
+         }
+
+         $items = $itemDataProvider->find($searchArray);
+
+         foreach($items as $k => $item){
+             if($item['tags']){
+                 $items[$k]['system_tags'] = TagService::getTagNames($item['system_tags']);
+                 $items[$k]['tags'] = TagService::getTagNames($item['tags']);
+             }
+         }
+
+         return $items;
+
      }
 
     //utility functions
